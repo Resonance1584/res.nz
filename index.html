@@ -1,10 +1,182 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Res</title>
-  <style> html { font-family: sans-serif } </style>
+  <meta charset="utf-8" />
+  <title>res</title>
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="stylesheet" href="/style/main.css">
 </head>
 <body>
-  <h1>res.nz</h1>
+  <div id="header-wrapper" class="fullwidth">
+    <div id="header" class="fixedwidth">
+      <div id="header-home-button">
+        <a href="/">
+        <img height="128" alt="logo" src="/images/resico.png">
+        res.nz
+        </a>
+      </div>
+    </div>
+  </div>
+  <div id="content-wrapper" class="fullwidth">
+    <div id="content" class="fixedwidth">
+      <h1>Links to useful things:</h1>
+      <section>
+        <h2>CompSci / Programming</h2>
+        <h3>Scalability</h3>
+        <ul>
+          <li><a href="http://highscalability.com/">High Scalability - Website with frequent web scalability articles.</a>
+          </li>
+          <li><a href="http://vimeo.com/43759726">Building Spanner - Google's distributed database. Video (68 mins)</a>
+          </li>
+          <li><a href="https://computing.llnl.gov/tutorials/parallel_comp/">Introduction to Parallel Computing</a>
+          </li>
+          <li><a href="http://lethain.com/introduction-to-architecting-systems-for-scale/">Introduction to Architecting Systems for Scale</a>
+          </li>
+          <li><a href="https://blog.twitter.com/2013/new-tweets-per-second-record-and-how">Twitter Engineering - Tweets Per Second Record</a>
+          </li>
+          <li>Scaling a Crypto-Currency (<a href="https://blog.ethereum.org/2014/09/17/scalability-part-1-building-top/">part 1</a> - <a href="https://blog.ethereum.org/2014/10/21/scalability-part-2-hypercubes/">part 2</a>)
+          <li><a href="http://www.andrew.cmu.edu/course/15-749/READINGS/">Engineering Distributed Systems - List of course readings</a>
+          </li>
+          <li><a href="http://www.goodmath.org/blog/2015/01/30/paxos-a-really-beautiful-protocol-for-distributed-consensus/">Paxos (Introduction)</a>
+          </li>
+          <li><a href="http://research.microsoft.com/en-us/um/people/lamport/pubs/paxos-simple.pdf">Paxos Made Simple (pdf)</a>
+          </li>
+          <li><a href="https://docs.google.com/presentation/d/1AO7_PBpdzcfxagWu1yjj1JWCZxUwHvzzWDeYn4SyXME/edit#slide=id.p">Paxos Illustrated (slides)</a>
+          </li>
+          <li><a href="http://static.googleusercontent.com/media/research.google.com/en//archive/chubby-osdi06.pdf">Chubby Distributed Lock Service (pdf)</a>
+          </li>
+          <li><a href="http://static.googleusercontent.com/media/research.google.com/en//archive/mapreduce-osdi04.pdf">MapReduce (pdf)</a>
+          </li>
+          <li><a href="http://static.googleusercontent.com/media/research.google.com/en//archive/bigtable-osdi06.pdf">BigTable (pdf)</a>
+          </li>
+        </ul>
+        <h3>Algorithms and Data Structures</h3>
+        <ul>
+          <li><a href="http://research.microsoft.com/en-US/people/kannan/book-no-solutions-aug-21-2014.pdf">Foundations of Data Science. PDF</a>
+          </li>
+          <li><a href="http://stackoverflow.com/a/7294635/1822046">Time complexiities of Java data structures</a>
+          </li>
+          <li><a href="https://www.cs.auckland.ac.nz/~jmor159/PLDS210/ds_ToC.html">Auckland University Data Structures and Algorithms Notes</a>
+          </li>
+          <li><a href="http://www.cs.utah.edu/~lifeifei/cs6931/kdtree.pdf">Range searching using KD-Tree</a>
+          </li>
+          <li><a href="http://pcg.wikidot.com/">Procedural Content Generation Wiki</a>
+          </li>
+        </ul>
+        <h3>Web / Javascript</h3>
+        <ul>
+          <li><a href="http://addyosmani.com/largescalejavascript/">Patterns For Large-Scale JavaScript Application Architecture - documents best practice in a pre node.js dominated javascript world. Sounds dated today.</a>
+          </li>
+          <li><a href="http://casa.au.dk/">Aarhus University Center for Advanced Software Analysis - static analysis of javascript.</a>
+          </li>
+          <li><a href="http://anti-code.com/devtools-cheatsheet/">Chrome DevTools Cheatsheet</a>
+          </li>
+          <li><a href="http://martinfowler.com/articles/richardsonMaturityModel.html">REST / Richardson Maturity Model. Hypermedia. HATEOAS. Martin Fowler.</a>
+          </li>
+          <li><a href="http://www.html5rocks.com/en/tutorials/webgl/shaders/">WebGL Introduction to Shaders</a>
+          </li>
+          <li><a href="http://hakim.se/">hakim.se - cool frontend web experiments (css / js)</a>
+          </li>
+        </ul>
+        <h3>Architecture / Design</h3>
+        <ul>
+          <li><a href="http://www.objectmentor.com/resources/articles/ocp.pdf">The Open Closed Principle</a>
+          </li>
+          <li><a href="http://c2.com/cgi/wiki">Ward's Wiki - Mostly historical discussion of design principles</a>
+          </li>
+          <li><a href="http://wiki3.cosc.canterbury.ac.nz/index.php/Main_Page">Wal's OO Wiki - Great reference on design principles and OO patterns. Java-era.</a>
+          </li>
+        </ul>
+        <h3>Databases</h3>
+        <ul>
+          <li><a href="http://jimwebber.org/2014/01/starting-graph-databases-with-neo4j-2-0/">Getting started with Neo4J - Into to Graph Databases</a>
+          </li>
+          <li><a href="https://neosmart.net/blog/2015/using-hmac-signatures-to-avoid-database-writes/">Using HMAC signatures to avoid database writes</a>
+          </li>
+        </ul>
+        <h3>Other CS</h3>
+        <ul>
+          <li><a href="http://www.norvig.com/">Peter Norvig - Researcher. See Design Patterns in Dynamic Programming</a></li>
+          <li><a href="https://infinitecardinals.wordpress.com/2014/12/23/type-theory-in-15-minutes/">Type Theory in 15 Minutes</a>
+          </li>
+        </ul>
+        <h3>Other Programming</h3>
+        <ul>
+          <li><a href="http://renderman.pixar.com/resources/current/RenderMan/portingRSLtoC.html">Porting RSL to C++</a>
+          </li>
+          <li><a href="http://iolanguage.org/scm/io/docs/IoGuide.html">Io Lang Programming Guide - A language based entirely on prototypes</a>
+          </li>
+          <li><a href="http://conceptf1.blogspot.sg/2013/11/list-of-freely-available-programming.html">List of Freely Available Programming Books</a>
+          </li>
+        </ul>
+      </section>
+      <section>
+        <h2>Internet Tools</h2>
+        <h3>Audio</h3>
+        <ul>
+          <li><a href="http://jfxr.frozenfractal.com/">jfxr - An html5 sound effect generator</a>
+          </li>
+          <li><a href="http://www.proguitartuner.com/guitar-tuner/">Guitar Tuner</a></li>
+        </ul>
+        <h3>Programming</h3>
+        <ul>
+          <li><a href="https://www.debuggex.com/">Debuggex - Regular expression debugger</a>
+          </li>
+        </ul>
+        <h3>Graphics</h3>
+        <ul>
+          <li><a href="http://apps.pixlr.com/editor/">Pixlr - Photo editor</a>
+          </li>
+          <li><a href="http://editor.method.ac/">Method Draw - Vector Graphics</a>
+          </li>
+          <li><a href="http://fontello.com/">Fontello - Icon Font Generator</a>
+          </li>
+          <li><a href="https://www.myfonts.com/WhatTheFont/">What the Font - Font Analyser</a>
+          </li>
+        </ul>
+      </section>
+      <section>
+        <h2>Game Development</h2>
+        <h3>Art</h3>
+        <ul>
+          <li><a href="http://2dgameartforprogrammers.blogspot.de/2011/10/lets-get-started-with-circles.html">2D Game Art for Programmers - a series of tutorials on how to use Inkscape to draw vector art.</a>
+          </li>
+          <li><a href="http://www.gamefromscratch.com/post/2013/06/11/Creating-art-for-your-game-when-you-are-a-programmer.aspx">Creating art for your game - list of techniques and tutorials for wide range of styles</a>
+          </li>
+        </ul>
+        <h3>Writing</h3>
+        <ul>
+          <li><a href="http://www.aerogrammestudio.com/2013/03/07/pixars-22-rules-of-storytelling/">Pixar’s 22 Rules of Storytelling</a>
+          </li>
+        </ul>
+        <h3>Process</h3>
+        <ul>
+          <li><a href="http://code.tutsplus.com/articles/effectively-organize-your-games-development-with-a-game-design-document--active-10140">Writing a Game Design Document</a>
+          </li>
+        </ul>
+        <h3>Architecture / Programming</h3>
+        <ul>
+          <li><a href="http://www.gamasutra.com/view/feature/131503/1500_archers_on_a_288_network_.php?print=1">Network Programming in Age of Empires</a>
+          </li>
+          <li><a href="http://www.codeofhonor.com/blog/the-starcraft-path-finding-hack">The StarCraft Pathfinding Hack</a>
+          </li>
+          <li><a href="http://www.gabrielgambetta.com/fast_paced_multiplayer.html">Fast-Paced Multiplayer</a>
+          </li>
+          <li><a href="http://flafla2.github.io/2015/02/14/bunnyhop.html">Bunnyhopping</a>
+          </li>
+          <li><a href="http://www.redblobgames.com/pathfinding/a-star/introduction.html">A* Pathfinding (Introduction)</a>
+          </li>
+          <li><a href="http://www.tmwhere.com/city_generation.html">Procedural City Generation</a>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </div>
+  <div id="footer-wrapper" class="fullwidth">
+    <div id="footer" class="fixedwidth">
+      <a href="https://github.com/Resonance1584">github</a>
+      | <a href="https://twitter.com/resonance1584">twitter</a>
+    </div>
+  </div>
 </body>
 </html>
