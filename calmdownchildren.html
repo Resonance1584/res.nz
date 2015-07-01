@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+    #bgvid {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      z-index: -100;
+      -webkit-transform: translateX(-50%) translateY(-50%);
+      transform: translateX(-50%) translateY(-50%);
+      background-size: cover;
+    }
+    #outer {
+      position: fixed;
+      left: 100px;
+      right: 100px;
+      top: 40px;
+    }
+    #inner {
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+      color: #ffffff;
+      padding: 20px;
+      font-family: sans-serif;
+    }
+    #title {
+      padding-bottom: 4px;
+      border-bottom: 2px solid white;
+      width: 30%;
+      transition: all 4s ease;
+    }
+    #title:hover {
+      width: 100%;
+      color: #6633ff;
+      border-bottom: 2px solid #6633ff;
+    }
+    p {
+      transition: all 60s ease;
+      overflow: visible;
+    }
+    p:hover {
+      letter-spacing: 100px;
+      transform: skewY(15deg);
+    }
+    </style>
+  </head>
+  <body>
+    <video autoplay loop id="bgvid">
+      <source src="https://d2v9y0dukr6mq2.cloudfront.net/video/preview/YWAdzU2/star-warp-005-traveling-through-star-fields-and-supernova-in-deep-space-loop_nkwdzgp__PM.mp4" type="video/mp4">
+    </video>
+    <div id="outer">
+      <div id="inner">
+        <h1 id="title">Welcome to my site</h1>
+        <div style="display: table">
+          <div style="display: table-cell; vertical-align: middle;">
+            <p id="spreadtext">A lot of sites these days aren't very cool. This one is extra cool.
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
