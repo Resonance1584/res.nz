@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Ember 2.4.0 Guide Search</title>
-</head>
-<body>
-<div>
-<script>
-  (function() {
-    var cx = '003922583083154200710:4_6_bdcs9c4';
-    var gcse = document.createElement('script');
-    gcse.type = 'text/javascript';
-    gcse.async = true;
-    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
-        '//cse.google.com/cse.js?cx=' + cx;
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(gcse, s);
-  })();
-</script>
-<gcse:searchbox-only></gcse:searchbox-only>
-</div>
-</body>
+  <head>
+    <title>Ember 2.4.0 Guide Search</title>
+  </head>
+  <body>
+    <h1>Ember 2.4.0 Guide Search</h1>  
+    <div>
+      <script>
+        (function() {
+          var cx = '003922583083154200710:4_6_bdcs9c4';
+          var gcse = document.createElement('script');
+          gcse.type = 'text/javascript';
+          gcse.async = true;
+          gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+              '//cse.google.com/cse.js?cx=' + cx;
+          var s = document.getElementsByTagName('script')[0];
+          s.parentNode.insertBefore(gcse, s);
+        })();
+      </script>
+      <gcse:search></gcse:search>
+    </div>
+  </body>
 </html>
