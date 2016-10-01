@@ -175,7 +175,7 @@ var gameLoop = function () {
 		}
 
 		if (hazards.length < (5 + Math.floor(score / 10)) && time > nextHazardTime) {
-			nextHazardTime = time + 500 + (Math.random() * 3000)
+			nextHazardTime = time + 250 + (Math.random() * Math.max(3000 - (score * 100), 750))
 			spawnHazard();
 		}
 
