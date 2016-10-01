@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>SpaceDodge</title>
+		<style>
+body, html {
+	margin: 0;
+	padding: 0;
+	background-color: black;
+	color: whitesmoke;
+	font-family: sans-serif;
+}
+h1 {
+	line-height: 24px;
+	height: 24px;
+	margin: 10px;
+	padding: 0;
+	margin-bottom: 20px;
+}
+h1.title {
+	text-shadow: 5px 2px 10px aquamarine;
+}
+div.container {
+	margin-left: auto;
+	margin-right: auto;
+	width: 800px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+canvas#game {
+	border: 8px whitesmoke solid;
+}
+
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1 class="title">SpaceDodge</h1>
+			<canvas id="game" width="800" height="160"></canvas>
+		</div>
+		<script>
+'use strict';
+
+var canvas = document.getElementById('game');
+var ctx = canvas.getContext('2d');
+var height = 20;
+var width = 100;
+
+var time = 0;
+var score = 0;
+var lastTime = 0;
+var deltaTime = 0;
+var lastMove = 0;
+var nextHazardTime = 0;
+var lastHazardMove = 0;
+var keys = {};
+var i = 0;
+var j = 0;
+
+var hazards = [
+]
+
+var player = {
+	isDead: true,
+	x: 2,
+	y: 10,
+	minX: 2,
+	maxX: 8,
+	minY: 2,
+	maxY: 18,
+	draw: function () {
+		drawPixel(this.x, this.y - 2, 'FFFFFF');
+		drawPixel(this.x, this.y - 1, 'FFFFFF');
+		drawPixel(this.x, this.y, 'FFFFFF');
+		drawPixel(this.x, this.y + 1, 'FFFFFF');
+		drawPixel(this.x + 1, this.y -1, 'FFFFFF');
+		drawPixel(this.x + 1, this.y, 'FFFFFF');
+		drawPixel(this.x + 2, this.y -1, '00FF00');
+		drawPixel(this.x + 2, this.y, '00FF00');
+		drawPixel(this.x + 3, this.y -1, 'FFFFFF');
+		drawPixel(this.x + 3, this.y, 'FFFFFF');
+	},
+	containsCoordinate: function (x, y) {
+		return [
+			[this.x, this.y - 2],
+			[this.x, this.y - 1],
+			[this.x, this.y],
+			[this.x, this.y + 1],
+			[this.x + 1, this.y -1],
+			[this.x + 1, this.y],
+			[this.x + 2, this.y -1],
+			[this.x + 2, this.y],
+			[this.x + 3, this.y -1],
+			[this.x + 3, this.y]
+		].some(function (coordinate) {
+			return coordinate[0] === x && coordinate[1] === y
+		})
+	}
+}
+
+var origFillStyle = ctx.fillStyle;
+var drawPixel = function (x, y, color) {
+	origFillStyle = ctx.fillStyle;
+	ctx.fillStyle = '#' + color;
+	x = x * 8
+	y = y * 8
+	ctx.fillRect(x, y, 8, 8);
+	ctx.fillStyle = origFillStyle;
+}
+
+var origFont = ctx.font;
+var drawText = function (x, y, text, color, size) {
+	origFillStyle = ctx.fillStyle;
+	ctx.fillStyle = '#' + color;
+	origFont = ctx.font;
+	size = size || 1
+	ctx.font = (size * 16) + 'px monospace';
+	ctx.fillText(text, x * 8, y * 8);
+	ctx.fillStyle = origFillStyle;
+	ctx.font = origFont;
+}
+
+var spawnHazard = function () {
+	hazards.push({
+		x: width - 1,
+		y: Math.floor(Math.random() * height),
+		draw: function () {
+			drawPixel(this.x, this.y, 'FF0000')
+		}
+	})
+}
+
+var gameLoop = function () {
+
+	// Clear Canvas
+	ctx.fillStyle = 'black';
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	if (player.isDead) {
+		if (keys[13]) {
+			score = 0;
+			player.x = 2;
+			player.y = 10;
+			player.isDead = false;
+			hazards = []
+			keys = []
+		}
+		for (i = 0; i < width; i++) {
+			for (j = 0; j < height; j++) {
+				drawPixel(i, j, Math.floor(Math.random() * 16777215).toString(16));
+			}
+		}
+		drawText(4, 12, 'PRESS ENTER TO PLAY', 'FFFFFF', 4);
+	} else {
+
+		// Get Delta Time
+		time = performance.now();
+		lastTime = time;
+
+		// Update World State
+		if (time - lastMove > 50) {
+			lastMove = time;
+			if (keys[37] && player.x > player.minX) {
+				player.x = player.x - 1;
+			}
+			if (keys[38] && player.y > player.minY) {
+				player.y = player.y - 1;
+			}
+			if (keys[39] && player.x < player.maxX) {
+				player.x = player.x + 1;
+			}
+			if (keys[40] && player.y < player.maxY) {
+				player.y = player.y + 1;
+			}
+		}
+
+		if (hazards.length < (5 + Math.floor(score / 10)) && time > nextHazardTime) {
+			nextHazardTime = time + 500 + (Math.random() * 3000)
+			spawnHazard();
+		}
+
+		if (time - lastHazardMove > Math.max((50 - score), 20)) {
+			lastHazardMove = time
+			hazards = hazards.filter(function (hazard) {
+				hazard.x = hazard.x - 1
+				if (player.containsCoordinate(hazard.x, hazard.y)) player.isDead = true;
+				if (hazard.x < 0) score++;
+				return hazard.x >= 0;
+			})
+		}
+
+		// Draw World
+		player.draw();
+		for (i = 0; i < hazards.length; i++) {
+			hazards[i].draw();
+		}
+
+		drawText(80, 18, 'SCORE:' + score, 'FFFFFF', 1)
+	}
+
+	// Loop
+	window.requestAnimationFrame(gameLoop);
+}
+
+var handleKeyDown = function (event) {
+	keys[event.keyCode] = true
+}
+
+var handleKeyUp = function (event) {
+	delete keys[event.keyCode]
+}
+
+window.addEventListener('keydown', handleKeyDown, true);
+window.addEventListener('keyup', handleKeyUp, true);
+window.requestAnimationFrame(gameLoop);
+
+		</script>
+	</body>
+</html>
