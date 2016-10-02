@@ -54,6 +54,9 @@ var lastMove = 0;
 var deadTime = 0;
 var nextHazardTime = 0;
 var nextHazardMoveTime = 0;
+var nextRocketTime = 0;
+var nextRocketMoveTime = 0;
+var nextAmmoTime = 0;
 var keys = {};
 var i = 0;
 var j = 0;
@@ -279,7 +282,13 @@ var drawText = function (x, y, text, color, size) {
 }
 
 var hazards = [
-]
+];
+
+var rockets = [
+];
+
+var ammos = [
+];
 
 var player = {
 	isDead: true,
@@ -290,6 +299,7 @@ var player = {
 	maxX: 20,
 	minY: 2,
 	maxY: 18,
+	rockets: 0,
 	draw: function () {
 		drawPixel(this.x, this.y - 2, 'FFFFFF');
 		drawPixel(this.x, this.y - 1, 'FFFFFF');
@@ -354,9 +364,42 @@ var spawnHazard = function (size) {
 		draw: function () {
 			for (k = 0; k < this.size; k++) {
 				for (j = 0; j < this.size; j++) {
-					drawPixel(this.x + k, this.y + j, 'FF0000')
+					drawPixel(this.x + k, this.y + j, 'FF0000');
 				}
 			}
+		}
+	})
+}
+
+var spawnRocket = function () {
+	rockets.push({
+		x: player.x + 4,
+		y: player.y,
+		draw: function () {
+			drawPixel(this.x, this.y, '0000FF');
+			drawPixel(this.x + 1, this.y, '0000FF');
+		},
+		containsHazard: function (hazard) {
+			for (i = 0; i < hazard.size; i++) {
+				for (j = 0; j < hazard.size; j++) {
+					if (this.x === hazard.x + i && this.y === hazard.y + j ||
+						this.x + 1 === hazard.x + i && this.y === hazard.y + j
+					) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	})
+}
+
+var spawnAmmo = function () {
+	ammos.push({
+		x: width -1,
+		y: Math.floor(Math.random() * height),
+		draw: function () {
+			drawPixel(this.x, this.y, '0000FF');
 		}
 	})
 }
@@ -369,6 +412,27 @@ var brightRandomColor = function () {
 	return (Math.floor(Math.random() * 100) + 155).toString(16) +
 		(Math.floor(Math.random() * 100) + 155).toString(16) +
 		(Math.floor(Math.random() * 100) + 155).toString(16);
+}
+
+var startGame = function () {
+	score = player.konami ? 1000 : 0;
+	player.x = 2;
+	player.y = 10;
+	player.isDead = false;
+	player.rockets = player.konami ? 3 : 0;
+	hazards = [];
+	rockets = [];
+	ammos = [];
+	keys = {};
+}
+
+var endGame = function () {
+	if (score > highscore && !player.konami) {
+		highscore = score;
+	}
+	player.isDead = true;
+	player.konami = false;
+	deadTime = time;
 }
 
 var gameLoop = function () {
@@ -384,12 +448,7 @@ var gameLoop = function () {
 
 	if (player.isDead) {
 		if (keys[13]) {
-			score = player.konami ? 1000 : 0;
-			player.x = 2;
-			player.y = 10;
-			player.isDead = false;
-			hazards = []
-			keys = {}
+			startGame()
 		}
 		if (time - deadTime < 2000) {
 			if (score > 0) {
@@ -441,15 +500,23 @@ var gameLoop = function () {
 			// if the hazard also moves this turn
 			for (k = 0; k < hazards.length; k++) {
 				if (player.containsHazard(hazards[k])) {
-					if (score > highscore && !player.konami) {
-						highscore = score;
-					}
-					player.isDead = true;
-					player.konami = false;
-					deadTime = time;
+					endGame();
 					break;
 				}
 			}
+
+			for (k = 0; k < ammos.length; k++) {
+				if (player.containsCoordinate(ammos[k].x, ammos[k].y)) {
+					player.rockets = player.rockets + 1;
+					ammos.splice(k, 1);
+				}
+			}
+		}
+
+		if (keys[32] && time > nextRocketTime && player.rockets > 0) {
+			nextRocketTime = time + 250;
+			player.rockets = player.rockets - 1;
+			spawnRocket();
 		}
 
 		if (hazards.length < (5 + Math.floor(score / 10)) && time > nextHazardTime) {
@@ -471,20 +538,63 @@ var gameLoop = function () {
 			}
 		}
 
+		if (score > 500 && time > nextAmmoTime) {
+			nextAmmoTime = time + 5000 + (frameRandom * 5000);
+			spawnAmmo();
+		}
+
 		if (time > nextHazardMoveTime) {
 			nextHazardMoveTime = time + 20;
 			hazards = hazards.filter(function (hazard) {
 				hazard.x = hazard.x - 1;
-				if (player.containsHazard(hazard)) {
-					if (score > highscore && !player.konami) {
-						highscore = score;
-					}
-					player.isDead = true;
-					player.konami = false;
-					deadTime = time;
-				}
 				if (hazard.x < 0) score++;
+
+				// Check for collisions after step
+				if (player.containsHazard(hazard)) {
+					endGame();
+				}
+				if (hazard.x >= 0 && rockets.length) {
+					for (k = 0; k < rockets.length; k++) {
+						if (rockets[k].containsHazard(hazard)) {
+							rockets.splice(k, 1);
+							return false;
+						}
+					}
+				}
 				return hazard.x >= 0;
+			})
+		}
+
+		if (time > nextRocketMoveTime) {
+			// Move / Collide Rockets
+			nextRocketMoveTime = time + 40;
+			rockets = rockets.filter(function (rocket) {
+				rocket.x = rocket.x + 1;
+
+				// Check for collisions after step
+				if (rocket.x < width && hazards.length) {
+					for (k = 0; k < hazards.length; k++) {
+						if (rocket.containsHazard(hazards[k])) {
+							hazards.splice(k, 1);
+							return false;
+						}
+					}
+				}
+				return rocket.x < width;
+			})
+
+			// Move / Collide Ammos
+			ammos = ammos.filter(function (ammo) {
+				ammo.x = ammo.x - 1;
+
+				// Check for collisions after step
+				if (ammo.x >= 0) {
+					if (player.containsCoordinate(ammo.x, ammo.y)) {
+						player.rockets = player.rockets + 1;
+						return false;
+					}
+				}
+				return ammo.x >= 0;
 			})
 		}
 
@@ -502,9 +612,19 @@ var gameLoop = function () {
 			}
 
 		}
-		player.draw();
+		if (player.rockets > 0) {
+			drawText(88, 1, 'R:', '606060');
+			drawText(96, 1, player.rockets.toString(), '0000FF');
+		}
+		for (i = 0; i < ammos.length; i++) {
+			ammos[i].draw();
+		}
 		for (i = 0; i < hazards.length; i++) {
 			hazards[i].draw();
+		}
+		player.draw();
+		for (i = 0; i < rockets.length; i++) {
+			rockets[i].draw();
 		}
 	}
 
@@ -513,13 +633,13 @@ var gameLoop = function () {
 }
 
 var handleKeyDown = function (event) {
-	keys[event.keyCode] = true
+	keys[event.keyCode] = true;
 }
 
 var konami = [38,38,40,40,37,39,37,39,66,65]
 var codeEntered = []
 var handleKeyUp = function (event) {
-	delete keys[event.keyCode]
+	delete keys[event.keyCode];
 
 	// Cheat Code
 	if (player.isDead) {
