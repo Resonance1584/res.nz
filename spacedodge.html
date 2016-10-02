@@ -54,7 +54,7 @@ var deltaTime = 0;
 var lastMove = 0;
 var deadTime = 0;
 var nextHazardTime = 0;
-var lastHazardMove = 0;
+var nextHazardMove = 0;
 var keys = {};
 var i = 0;
 var j = 0;
@@ -67,7 +67,7 @@ var player = {
 	x: 2,
 	y: 10,
 	minX: 2,
-	maxX: 8,
+	maxX: 20,
 	minY: 2,
 	maxY: 18,
 	draw: function () {
@@ -407,8 +407,8 @@ var gameLoop = function () {
 			spawnHazard();
 		}
 
-		if (time - lastHazardMove > Math.max((50 - score), 20)) {
-			lastHazardMove = time;
+		if (time > nextHazardMove) {
+			nextHazardMove = time + 20;
 			hazards = hazards.filter(function (hazard) {
 				hazard.x = hazard.x - 1;
 				if (player.containsCoordinate(hazard.x, hazard.y)) {
@@ -445,6 +445,7 @@ var handleKeyUp = function (event) {
 
 window.addEventListener('keydown', handleKeyDown, true);
 window.addEventListener('keyup', handleKeyUp, true);
+
 window.requestAnimationFrame(gameLoop);
 
 		</script>
