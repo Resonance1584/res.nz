@@ -50,55 +50,15 @@ var time = 0;
 var score = 0;
 var highscore = 0;
 var lastTime = 0;
-var deltaTime = 0;
 var lastMove = 0;
 var deadTime = 0;
 var nextHazardTime = 0;
-var nextHazardMove = 0;
+var nextHazardMoveTime = 0;
 var keys = {};
 var i = 0;
 var j = 0;
-
-var hazards = [
-]
-
-var player = {
-	isDead: true,
-	x: 2,
-	y: 10,
-	minX: 2,
-	maxX: 20,
-	minY: 2,
-	maxY: 18,
-	draw: function () {
-		drawPixel(this.x, this.y - 2, 'FFFFFF');
-		drawPixel(this.x, this.y - 1, 'FFFFFF');
-		drawPixel(this.x, this.y, 'FFFFFF');
-		drawPixel(this.x, this.y + 1, 'FFFFFF');
-		drawPixel(this.x + 1, this.y -1, 'FFFFFF');
-		drawPixel(this.x + 1, this.y, 'FFFFFF');
-		drawPixel(this.x + 2, this.y -1, '00FF00');
-		drawPixel(this.x + 2, this.y, '00FF00');
-		drawPixel(this.x + 3, this.y -1, 'FFFFFF');
-		drawPixel(this.x + 3, this.y, 'FFFFFF');
-	},
-	containsCoordinate: function (x, y) {
-		return [
-			[this.x, this.y - 2],
-			[this.x, this.y - 1],
-			[this.x, this.y],
-			[this.x, this.y + 1],
-			[this.x + 1, this.y -1],
-			[this.x + 1, this.y],
-			[this.x + 2, this.y -1],
-			[this.x + 2, this.y],
-			[this.x + 3, this.y -1],
-			[this.x + 3, this.y]
-		].some(function (coordinate) {
-			return coordinate[0] === x && coordinate[1] === y
-		})
-	}
-}
+var k = 0;
+var frameRandom = 0;
 
 var origFillStyle = ctx.fillStyle;
 var drawPixel = function (x, y, color) {
@@ -297,13 +257,15 @@ var pixelChars = {
 pixelChars['0'] = pixelChars.o;
 pixelChars['5'] = pixelChars.s;
 
+var chars = [];
+var char = '';
 var drawText = function (x, y, text, color, size) {
 	size = size || 1
 
-	var chars = text.split('')
+	chars = text.split('')
 	for (i = 0; i < chars.length; i++) {
 		if (chars[i].trim() !== '') {
-			var char = pixelChars[chars[i].toLowerCase()] || pixelChars['?']
+			char = pixelChars[chars[i].toLowerCase()] || pixelChars['?']
 			for (j = 0; j < char.length; j++) {
 				drawPixel(
 					x + char[j][0],
@@ -316,12 +278,84 @@ var drawText = function (x, y, text, color, size) {
 	}
 }
 
-var spawnHazard = function () {
+var hazards = [
+]
+
+var player = {
+	isDead: true,
+	x: 2,
+	y: 10,
+	minX: 2,
+	maxX: 20,
+	minY: 2,
+	maxY: 18,
+	draw: function () {
+		drawPixel(this.x, this.y - 2, 'FFFFFF');
+		drawPixel(this.x, this.y - 1, 'FFFFFF');
+		drawPixel(this.x, this.y, 'FFFFFF');
+		drawPixel(this.x, this.y + 1, 'FFFFFF');
+		drawPixel(this.x + 1, this.y -1, 'FFFFFF');
+		drawPixel(this.x + 1, this.y, 'FFFFFF');
+		drawPixel(this.x + 2, this.y -1, '00FF00');
+		drawPixel(this.x + 2, this.y, '00FF00');
+		drawPixel(this.x + 3, this.y -1, 'FFFFFF');
+		drawPixel(this.x + 3, this.y, 'FFFFFF');
+	},
+	containsCoordinate: function (x, y) {
+		return [
+			[this.x, this.y - 2],
+			[this.x, this.y - 1],
+			[this.x, this.y],
+			[this.x, this.y + 1],
+			[this.x + 1, this.y -1],
+			[this.x + 1, this.y],
+			[this.x + 2, this.y -1],
+			[this.x + 2, this.y],
+			[this.x + 3, this.y -1],
+			[this.x + 3, this.y]
+		].some(function (coordinate) {
+			return coordinate[0] === x && coordinate[1] === y
+		})
+	},
+	containsHazard: function (hazard) {
+		if (hazard.x > this.x + 3) {
+			return false;
+		}
+		if (hazard.x < this.x) {
+			return false;
+		}
+		if (hazard.y + hazard.size < this.y - 2) {
+			return false;
+		}
+		if (hazard.y > this.y + 1) {
+			return false;
+		}
+		for (i = 0; i < hazard.size; i++) {
+			for (j = 0; j < hazard.size; j++) {
+				if (this.containsCoordinate(
+					hazard.x + i,
+					hazard.y + j
+				)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+}
+
+var spawnHazard = function (size) {
+	size = size || 1
 	hazards.push({
 		x: width - 1,
 		y: Math.floor(Math.random() * height),
+		size: size,
 		draw: function () {
-			drawPixel(this.x, this.y, 'FF0000')
+			for (k = 0; k < this.size; k++) {
+				for (j = 0; j < this.size; j++) {
+					drawPixel(this.x + k, this.y + j, 'FF0000')
+				}
+			}
 		}
 	})
 }
@@ -341,6 +375,7 @@ var gameLoop = function () {
 	// Get Delta Time
 	time = performance.now();
 	lastTime = time;
+	frameRandom = Math.random()
 
 	// Clear Canvas
 	ctx.fillStyle = 'black';
@@ -353,7 +388,7 @@ var gameLoop = function () {
 			player.y = 10;
 			player.isDead = false;
 			hazards = []
-			keys = []
+			keys = {}
 		}
 		if (time - deadTime < 2000) {
 			if (score > 0) {
@@ -400,18 +435,45 @@ var gameLoop = function () {
 			if (keys[40] && player.y < player.maxY) {
 				player.y = player.y + 1;
 			}
+			// Check if player moved into an existing hazard
+			// This stops player teleporting past a hazard
+			// if the hazard also moves this turn
+			for (i = 0; i < hazards.length; i++) {
+				if (player.containsHazard(hazards[i])) {
+					if (score > highscore) {
+						highscore = score;
+					}
+					player.isDead = true;
+					deadTime = time;
+					break;
+				}
+			}
 		}
 
 		if (hazards.length < (5 + Math.floor(score / 10)) && time > nextHazardTime) {
-			nextHazardTime = time + Math.max((250 - score), 0) + (Math.random() * Math.max(3000 - (score * 100), 750))
-			spawnHazard();
+			nextHazardTime = time + Math.max((250 - score), 0) + (frameRandom * Math.max(3000 - (score * 100), 750))
+
+			if (score < 10 || frameRandom < 0.05) {
+				spawnHazard(1)
+			} else {
+				for (i = score.toString().length - 1; i >= 0 ; i--) {
+					if (frameRandom * 10 < Math.floor(score / Math.pow(10, i))) {
+						if (score < 100) {
+							spawnHazard(1)
+						} else {
+							spawnHazard(Math.max(i, 1))
+						}
+						break;
+					}
+				}
+			}
 		}
 
-		if (time > nextHazardMove) {
-			nextHazardMove = time + 20;
+		if (time > nextHazardMoveTime) {
+			nextHazardMoveTime = time + 20;
 			hazards = hazards.filter(function (hazard) {
 				hazard.x = hazard.x - 1;
-				if (player.containsCoordinate(hazard.x, hazard.y)) {
+				if (player.containsHazard(hazard)) {
 					if (score > highscore) {
 						highscore = score;
 					}
@@ -424,7 +486,19 @@ var gameLoop = function () {
 		}
 
 		// Draw World
-		drawText(60, 14, 'SCORE:' + score, '606060');
+		if (score.toString().length > 8) {
+			drawText(60, 14, '??????????', brightRandomColor());
+		}
+		if (score.toString().length > 4) {
+			drawText(60, 14, 'S:' + score, brightRandomColor());
+		} else {
+			if (highscore > 0 && score - highscore === 1) {
+				drawText(60, 14, 'SCORE:' + score, brightRandomColor());
+			} else {
+				drawText(60, 14, 'SCORE:' + score, '606060');
+			}
+
+		}
 		player.draw();
 		for (i = 0; i < hazards.length; i++) {
 			hazards[i].draw();
