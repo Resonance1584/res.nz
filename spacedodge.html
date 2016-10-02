@@ -441,7 +441,7 @@ var gameLoop = function () {
 			// if the hazard also moves this turn
 			for (k = 0; k < hazards.length; k++) {
 				if (player.containsHazard(hazards[k])) {
-					if (score > highscore) {
+					if (score > highscore && !player.konami) {
 						highscore = score;
 					}
 					player.isDead = true;
@@ -476,7 +476,7 @@ var gameLoop = function () {
 			hazards = hazards.filter(function (hazard) {
 				hazard.x = hazard.x - 1;
 				if (player.containsHazard(hazard)) {
-					if (score > highscore) {
+					if (score > highscore && !player.konami) {
 						highscore = score;
 					}
 					player.isDead = true;
