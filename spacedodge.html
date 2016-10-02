@@ -283,6 +283,7 @@ var hazards = [
 
 var player = {
 	isDead: true,
+	konami: false,
 	x: 2,
 	y: 10,
 	minX: 2,
@@ -383,7 +384,7 @@ var gameLoop = function () {
 
 	if (player.isDead) {
 		if (keys[13]) {
-			score = 0;
+			score = player.konami ? 1000 : 0;
 			player.x = 2;
 			player.y = 10;
 			player.isDead = false;
@@ -444,6 +445,7 @@ var gameLoop = function () {
 						highscore = score;
 					}
 					player.isDead = true;
+					player.konami = false;
 					deadTime = time;
 					break;
 				}
@@ -478,6 +480,7 @@ var gameLoop = function () {
 						highscore = score;
 					}
 					player.isDead = true;
+					player.konami = false;
 					deadTime = time;
 				}
 				if (hazard.x < 0) score++;
@@ -513,8 +516,28 @@ var handleKeyDown = function (event) {
 	keys[event.keyCode] = true
 }
 
+var konami = [38,38,40,40,37,39,37,39,66,65]
+var codeEntered = []
 var handleKeyUp = function (event) {
 	delete keys[event.keyCode]
+
+	// Cheat Code
+	if (player.isDead) {
+		if (konami[codeEntered.length] === event.keyCode) {
+			codeEntered.push(event.keyCode);
+			if (codeEntered.length === konami.length) {
+				for (i = 0; i < codeEntered.length; i++) {
+					if (codeEntered[i] !== konami[i]) {
+						return;
+					}
+				}
+				player.konami = true;
+				codeEntered = [];
+			}
+		} else {
+			codeEntered = [];
+		}
+	}
 }
 
 window.addEventListener('keydown', handleKeyDown, true);
