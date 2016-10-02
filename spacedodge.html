@@ -324,7 +324,7 @@ var player = {
 		if (hazard.x < this.x) {
 			return false;
 		}
-		if (hazard.y + hazard.size < this.y - 2) {
+		if (hazard.y + (hazard.size - 1) < this.y - 2) {
 			return false;
 		}
 		if (hazard.y > this.y + 1) {
@@ -438,8 +438,8 @@ var gameLoop = function () {
 			// Check if player moved into an existing hazard
 			// This stops player teleporting past a hazard
 			// if the hazard also moves this turn
-			for (i = 0; i < hazards.length; i++) {
-				if (player.containsHazard(hazards[i])) {
+			for (k = 0; k < hazards.length; k++) {
+				if (player.containsHazard(hazards[k])) {
 					if (score > highscore) {
 						highscore = score;
 					}
