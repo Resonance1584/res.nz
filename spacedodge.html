@@ -48,9 +48,11 @@ var width = 100;
 
 var time = 0;
 var score = 0;
+var highscore = 0;
 var lastTime = 0;
 var deltaTime = 0;
 var lastMove = 0;
+var deadTime = 0;
 var nextHazardTime = 0;
 var lastHazardMove = 0;
 var keys = {};
@@ -108,16 +110,210 @@ var drawPixel = function (x, y, color) {
 	ctx.fillStyle = origFillStyle;
 }
 
-var origFont = ctx.font;
+var pixelChars = {
+	'a': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],      [2,3],
+		[0,4],      [2,4]
+	],
+	'c': [
+		[0,0],[1,0],[2,0],
+		[0,1],
+		[0,2],
+		[0,3],
+		[0,4],[1,4],[2,4]
+	],
+	'd': [
+		[0,0],[1,0],
+		[0,1],      [2,1],
+		[0,2],      [2,2],
+		[0,3],      [2,3],
+		[0,4],[1,4]
+	],
+	'e': [
+		[0,0],[1,0],[2,0],
+		[0,1],
+		[0,2],[1,2],[2,2],
+		[0,3],
+		[0,4],[1,4],[2,4]
+	],
+	'g': [
+		[0,0],[1,0],[2,0],
+		[0,1],
+		[0,2],
+		[0,3],      [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	'h': [
+		[0,0],      [2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],      [2,3],
+		[0,4],      [2,4]
+	],
+	'i': [
+		[0,0],[1,0],[2,0],
+		      [1,1],
+		      [1,2],
+		      [1,3],
+		[0,4],[1,4],[2,4]
+	],
+	'm': [
+		[0,0],      [2,0],
+		[0,1],[1,1],[2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],      [2,3],
+		[0,4],      [2,4]
+	],
+	'n': [
+		[0,0],      [2,0],
+		[0,1],[1,1],[2,1],
+		[0,2],      [2,2],
+		[0,3],      [2,3],
+		[0,4],      [2,4]
+	],
+	'o': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],      [2,2],
+		[0,3],      [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	'p': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],
+		[0,4]
+	],
+	'r': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],      [2,2],
+		[0,3],[1,3],
+		[0,4],      [2,4]
+	],
+	's': [
+		[0,0],[1,0],[2,0],
+		[0,1],
+		[0,2],[1,2],[2,2],
+		            [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	't': [
+		[0,0],[1,0],[2,0],
+		      [1,1],
+		      [1,2],
+		      [1,3],
+		      [1,4]
+	],
+	'v': [
+		[0,0],      [2,0],
+		[0,1],      [2,1],
+		[0,2],      [2,2],
+		[0,3],      [2,3],
+		      [1,4]
+	],
+	'1': [
+		[0,0],[1,0],
+		      [1,1],
+		      [1,2],
+		      [1,3],
+		[0,4],[1,4],[2,4]
+	],
+	'2': [
+		[0,0],[1,0],[2,0],
+		            [2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],
+		[0,4],[1,4],[2,4]
+	],
+	'3': [
+		[0,0],[1,0],[2,0],
+		            [2,1],
+		[0,2],[1,2],[2,2],
+		            [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	'4': [
+		[0,0],      [2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		            [2,3],
+		            [2,4]
+	],
+	'6': [
+		[0,0],[1,0],[2,0],
+		[0,1],
+		[0,2],[1,2],[2,2],
+		[0,3],      [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	'7': [
+		[0,0],[1,0],[2,0],
+		            [2,1],
+		            [2,2],
+		            [2,3],
+		            [2,4]
+	],
+	'8': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],      [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	'9': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		            [2,3],
+		            [2,4]
+	],
+	':': [
+		[0,0],
+		[0,1],
+
+		[0,3],
+		[0,4]
+	],
+	'!': [
+		      [1,0],
+		      [1,1],
+		      [1,2],
+
+		      [1,4]
+	],
+	'?': [
+		[0,0],[1,0],
+		            [2,1],
+		      [1,2],
+
+		      [1,4]
+	]
+};
+pixelChars['0'] = pixelChars.o;
+pixelChars['5'] = pixelChars.s;
+
 var drawText = function (x, y, text, color, size) {
-	origFillStyle = ctx.fillStyle;
-	ctx.fillStyle = '#' + color;
-	origFont = ctx.font;
 	size = size || 1
-	ctx.font = (size * 16) + 'px monospace';
-	ctx.fillText(text, x * 8, y * 8);
-	ctx.fillStyle = origFillStyle;
-	ctx.font = origFont;
+
+	var chars = text.split('')
+	for (i = 0; i < chars.length; i++) {
+		if (chars[i].trim() !== '') {
+			var char = pixelChars[chars[i].toLowerCase()] || pixelChars['?']
+			for (j = 0; j < char.length; j++) {
+				drawPixel(
+					x + char[j][0],
+					y + char[j][1],
+					color
+				);
+			}
+		}
+		x += 4;
+	}
 }
 
 var spawnHazard = function () {
@@ -130,7 +326,21 @@ var spawnHazard = function () {
 	})
 }
 
+var randomColor = function () {
+	return Math.floor(Math.random() * 16777215).toString(16)
+}
+
+var brightRandomColor = function () {
+	return (Math.floor(Math.random() * 100) + 155).toString(16) +
+		(Math.floor(Math.random() * 100) + 155).toString(16) +
+		(Math.floor(Math.random() * 100) + 155).toString(16);
+}
+
 var gameLoop = function () {
+
+	// Get Delta Time
+	time = performance.now();
+	lastTime = time;
 
 	// Clear Canvas
 	ctx.fillStyle = 'black';
@@ -145,17 +355,35 @@ var gameLoop = function () {
 			hazards = []
 			keys = []
 		}
-		for (i = 0; i < width; i++) {
-			for (j = 0; j < height; j++) {
-				drawPixel(i, j, Math.floor(Math.random() * 16777215).toString(16));
+		if (time - deadTime < 2000) {
+			if (score > 0) {
+				for (i = 0; i < width; i++) {
+					for (j = 0; j < height; j++) {
+						drawPixel(i, j, randomColor());
+					}
+				}
+				drawText(30, 7, 'GAME OVER!', '000000');
+			} else {
+				for (i = 0; i < width; i++) {
+					drawPixel(i, 0, randomColor());
+					drawPixel(i, height - 1, randomColor());
+				}
+				drawText(30, 7, 'SPACE DODGE', brightRandomColor());
+			}
+		} else {
+			for (i = 0; i < width; i++) {
+				drawPixel(i, 0, randomColor());
+				drawPixel(i, height - 1, randomColor());
+			}
+			if (highscore > 0) {
+				drawText(4, 4, 'PRESS ENTER TO START', brightRandomColor());
+				drawText(4, 10, 'HIGH SCORE:' + highscore, brightRandomColor());
+			} else {
+				drawText(4, 4, 'SPACE DODGE', brightRandomColor());
+				drawText(4, 10, 'PRESS ENTER TO START', brightRandomColor());
 			}
 		}
-		drawText(4, 12, 'PRESS ENTER TO PLAY', 'FFFFFF', 4);
 	} else {
-
-		// Get Delta Time
-		time = performance.now();
-		lastTime = time;
 
 		// Update World State
 		if (time - lastMove > 50) {
@@ -175,27 +403,32 @@ var gameLoop = function () {
 		}
 
 		if (hazards.length < (5 + Math.floor(score / 10)) && time > nextHazardTime) {
-			nextHazardTime = time + 250 + (Math.random() * Math.max(3000 - (score * 100), 750))
+			nextHazardTime = time + Math.max((250 - score), 0) + (Math.random() * Math.max(3000 - (score * 100), 750))
 			spawnHazard();
 		}
 
 		if (time - lastHazardMove > Math.max((50 - score), 20)) {
-			lastHazardMove = time
+			lastHazardMove = time;
 			hazards = hazards.filter(function (hazard) {
-				hazard.x = hazard.x - 1
-				if (player.containsCoordinate(hazard.x, hazard.y)) player.isDead = true;
+				hazard.x = hazard.x - 1;
+				if (player.containsCoordinate(hazard.x, hazard.y)) {
+					if (score > highscore) {
+						highscore = score;
+					}
+					player.isDead = true;
+					deadTime = time;
+				}
 				if (hazard.x < 0) score++;
 				return hazard.x >= 0;
 			})
 		}
 
 		// Draw World
+		drawText(60, 14, 'SCORE:' + score, '606060');
 		player.draw();
 		for (i = 0; i < hazards.length; i++) {
 			hazards[i].draw();
 		}
-
-		drawText(80, 18, 'SCORE:' + score, 'FFFFFF', 1)
 	}
 
 	// Loop
