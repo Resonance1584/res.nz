@@ -473,11 +473,11 @@ var brightRandomColor = function () {
 }
 
 var startGame = function () {
-	score = player.konami ? 1000 : 0;
+	score = player.konami ? 1000 : 500;
 	player.x = 2;
 	player.y = 10;
 	player.isDead = false;
-	player.rockets = player.konami ? 3 : 0;
+	player.rockets = player.konami ? 500 : 5;
 	hazards = [];
 	rockets = [];
 	ammos = [];
