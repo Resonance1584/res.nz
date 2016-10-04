@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>SpaceDodge II - The Bali Quest</title>
+		<style>
+body, html {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background: linear-gradient(#76f5fb, #fb3494);
+	color: #fbd230;
+	font-family: sans-serif;
+}
+h1 {
+	line-height: 24px;
+	height: 24px;
+	margin: 10px;
+	padding: 0;
+	margin-bottom: 20px;
+}
+h1.title {
+	text-shadow: 5px 2px 10px black;
+}
+div.container {
+	margin-left: auto;
+	margin-right: auto;
+	width: 800px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+canvas#game {
+	border: 8px #78c29e solid;
+}
+p {
+	margin-left: 20px;
+	margin-right: 20px;
+}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="game" width="800" height="320"></canvas>
+			<h1 class="title">SpaceDodge II - The Bali Quest</h1>
+			<p>After escaping from the totally <em>not chill</em> <strong>Space Dot Dudes</strong>, our <strong>Rad Hero Dude</strong> made his way safely back to <strong>Earth</strong>. After debriefing with the government dudes he headed straight to <strong>Bali</strong> to finally catch up with some other <strong>Rad Dudes</strong>, check out those <em>Killer Breaks</em>, and <em>Hang Ten</em>.<p>
+			<p>The <em>Stoke</em> was high, dude, as were the waves, and finally life was totally <em>Chill</em>. But little did <strong>Hero Dude</strong> know things in <strong>Bali</strong> were about to get totally <em>Gnarly</em>.</p>
+			<p><em>"Cowabunga, Dude!"</em><p>
+		</div>
+		<script>
+'use strict';
+
+var canvas = document.getElementById('game');
+var ctx = canvas.getContext('2d');
+var height = 40;
+var width = 100;
+
+var time = performance.now();
+var lastTime = time;
+var deadTime = time;
+var startTime = time;
+var frameDelta = 0;
+var deadDelta = 0;
+var startDelta = 0;
+var score = 0;
+var highscore = 0;
+var keys = {};
+var i = 0;
+var j = 0;
+var k = 0;
+var l = 0;
+var m = 0;
+var frameRandom = 0;
+var gameMode = 0;
+
+var origFillStyle = ctx.fillStyle;
+var drawPixel = function (x, y, color) {
+	origFillStyle = ctx.fillStyle;
+	ctx.fillStyle = '#' + color;
+	x = x * 8
+	y = y * 8
+	ctx.fillRect(x, y, 8, 8);
+	ctx.fillStyle = origFillStyle;
+}
+
+var pixelChars = {
+	'a': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],      [2,3],
+		[0,4],      [2,4]
+	],
+	'b': [
+		[0,0],[1,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],      [2,3],
+		[0,4],[1,4]
+	],
+	'c': [
+		[0,0],[1,0],[2,0],
+		[0,1],
+		[0,2],
+		[0,3],
+		[0,4],[1,4],[2,4]
+	],
+	'd': [
+		[0,0],[1,0],
+		[0,1],      [2,1],
+		[0,2],      [2,2],
+		[0,3],      [2,3],
+		[0,4],[1,4]
+	],
+	'e': [
+		[0,0],[1,0],[2,0],
+		[0,1],
+		[0,2],[1,2],[2,2],
+		[0,3],
+		[0,4],[1,4],[2,4]
+	],
+	'f': [
+		[0,0],[1,0],[2,0],
+		[0,1],
+		[0,2],[1,2],[2,2],
+		[0,3],
+		[0,4]
+	],
+	'g': [
+		[0,0],[1,0],[2,0],
+		[0,1],
+		[0,2],
+		[0,3],      [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	'h': [
+		[0,0],      [2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],      [2,3],
+		[0,4],      [2,4]
+	],
+	'i': [
+		[0,0],[1,0],[2,0],
+		      [1,1],
+		      [1,2],
+		      [1,3],
+		[0,4],[1,4],[2,4]
+	],
+	'j': [
+		[0,0],[1,0],[2,0],
+		            [2,1],
+		            [2,2],
+		[0,3],      [2,3],
+		      [1,4],[2,4]
+	],
+	'k': [
+		[0,0],      [2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],
+		[0,3],      [2,3],
+		[0,4],      [2,4]
+	],
+	'l': [
+		[0,0],
+		[0,1],
+		[0,2],
+		[0,3],
+		[0,4],[1,4],[2,4]
+	],
+	'm': [
+		[0,0],      [2,0],
+		[0,1],[1,1],[2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],      [2,3],
+		[0,4],      [2,4]
+	],
+	'n': [
+		[0,0],      [2,0],
+		[0,1],[1,1],[2,1],
+		[0,2],      [2,2],
+		[0,3],      [2,3],
+		[0,4],      [2,4]
+	],
+	'o': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],      [2,2],
+		[0,3],      [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	'p': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],
+		[0,4]
+	],
+	'q': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],      [2,2],
+		[0,3],[1,3],
+		            [2,4]
+	],
+	'r': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],      [2,2],
+		[0,3],[1,3],
+		[0,4],      [2,4]
+	],
+	's': [
+		[0,0],[1,0],[2,0],
+		[0,1],
+		[0,2],[1,2],[2,2],
+		            [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	't': [
+		[0,0],[1,0],[2,0],
+		      [1,1],
+		      [1,2],
+		      [1,3],
+		      [1,4]
+	],
+	'u': [
+		[0,0],      [2,0],
+		[0,1],      [2,1],
+		[0,2],      [2,2],
+		[0,3],      [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	'v': [
+		[0,0],      [2,0],
+		[0,1],      [2,1],
+		[0,2],      [2,2],
+		[0,3],      [2,3],
+		      [1,4]
+	],
+	'w': [
+		[0,0],      [2,0],
+		[0,1],      [2,1],
+		[0,2],      [2,2],
+		[0,3],[1,3],[2,3],
+		[0,4],      [2,4]
+	],
+	'x': [
+		[0,0],      [2,0],
+		[0,1],      [2,1],
+		      [1,2],
+		[0,3],      [2,3],
+		[0,4],      [2,4]
+	],
+	'y': [
+		[0,0],      [2,0],
+		[0,1],      [2,1],
+		      [1,2],
+		      [1,3],
+		      [1,4]
+	],
+	'z': [
+		[0,0],[1,0],[2,0],
+		            [2,1],
+		      [1,2],
+		[0,3],
+		[0,4],[1,4],[2,4]
+	],
+	'1': [
+		[0,0],[1,0],
+		      [1,1],
+		      [1,2],
+		      [1,3],
+		[0,4],[1,4],[2,4]
+	],
+	'2': [
+		[0,0],[1,0],[2,0],
+		            [2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],
+		[0,4],[1,4],[2,4]
+	],
+	'3': [
+		[0,0],[1,0],[2,0],
+		            [2,1],
+		[0,2],[1,2],[2,2],
+		            [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	'4': [
+		[0,0],      [2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		            [2,3],
+		            [2,4]
+	],
+	'6': [
+		[0,0],[1,0],[2,0],
+		[0,1],
+		[0,2],[1,2],[2,2],
+		[0,3],      [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	'7': [
+		[0,0],[1,0],[2,0],
+		            [2,1],
+		            [2,2],
+		            [2,3],
+		            [2,4]
+	],
+	'8': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		[0,3],      [2,3],
+		[0,4],[1,4],[2,4]
+	],
+	'9': [
+		[0,0],[1,0],[2,0],
+		[0,1],      [2,1],
+		[0,2],[1,2],[2,2],
+		            [2,3],
+		            [2,4]
+	],
+	':': [
+		[0,0],
+		[0,1],
+
+		[0,3],
+		[0,4]
+	],
+	'!': [
+		      [1,0],
+		      [1,1],
+		      [1,2],
+
+		      [1,4]
+	],
+	'?': [
+		[0,0],[1,0],
+		            [2,1],
+		      [1,2],
+
+		      [1,4]
+	]
+};
+pixelChars['0'] = pixelChars.o;
+pixelChars['5'] = pixelChars.s;
+
+var chars = [];
+var char = '';
+var drawText = function (x, y, text, color) {
+	chars = text.split('')
+	for (i = 0; i < chars.length; i++) {
+		if (chars[i].trim() !== '') {
+			char = pixelChars[chars[i].toLowerCase()] || pixelChars['?']
+			for (j = 0; j < char.length; j++) {
+				drawPixel(
+					x + char[j][0],
+					y + char[j][1],
+					color
+				);
+			}
+		}
+		x += 4;
+	}
+}
+
+var wave = [
+	[false, false, true,  true,  false, false, false, false],
+	[false, false, false, true,  true,  true,  false, false],
+	[false, false, false, true,  true,  true,  true,  false],
+	[false, false, false, false, true,  true,  true,  false],
+	[true,  true,  true,  true,  true,  true,  true,  true] ,
+	[true,  true,  true,  true,  true,  true,  true,  true] ,
+	[true,  true,  true,  true,  true,  true,  true,  true] ,
+	[true,  true,  true,  true,  true,  true,  true,  true]
+]
+
+var drawWave = function (x, y, offset, color) {
+	for (i = 0; i < 8; i++) {
+		for (j = 0; j < 8; j++) {
+			k = (i + offset) % 8;
+			if (wave[j][k]) {
+				drawPixel(x + i, y + j, color)
+			}
+		}
+	}
+}
+
+var startGame = function () {
+	startTime = time;
+	gameMode = 1;
+	score = konami ? 1000 : 0;
+	keys = {};
+	nextSharkTime = time + 3500;
+}
+
+var endGame = function () {
+	if (score > highscore && !konami) {
+		highscore = score;
+	}
+	konami = false;
+	deadTime = time;
+	gameMode = 0;
+}
+
+var getReady = function () {
+	if (startDelta < 2000) {
+		k = startDelta < 1000 ? Math.floor(startDelta * (100 / 1000)) : 100;
+		drawText(k, 16, 'GET READY!', '58a3d5');
+		drawText(48, 24, (3 - Math.floor(startDelta / 1000)).toString(), 'fb3494');
+	} else if (startDelta < 3000) {
+		if (Math.floor(time / 250) % 2 === 0) {
+			drawText(30, 16, 'SURFS UP!!!', 'fb3494');
+		}
+		drawText(48, 24, (3 - Math.floor(startDelta / 1000)).toString(), 'fb3494');
+	} else {
+		// Go to next game mode
+		gameMode = 2;
+	}
+
+	m = Math.floor(time / 250) % 8;
+	for (l = 0; l < width; l += 8) {
+		drawWave(l, height - 8, m, 'cef3fd')
+	}
+}
+
+var jumpGamePlayer = {}
+var spawnJumpGamePlayer = function () {
+	return {
+		x: 10,
+		y: 20,
+		initialY: 20,
+		velocity: 0,
+		shape: [
+			            [2,0],[3,0],
+			            [2,1],[3,1],
+			[0,2],[1,2],[2,2],[3,2],[4,2],
+			            [2,3],[3,3],      [5,3],
+			            [2,4],[3,4],
+			            [2,5],[3,5],
+			            [2,6],      [4,6],
+			[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]
+
+		],
+		// Move and return collision hull
+		tick : function() {
+			// K stores new y position until finished calculations
+			k = this.y
+
+			if (this.y >= this.initialY) {
+				if (keys[38]) {
+					this.velocity += 150;
+				}
+				this.velocity = Math.max(0, this.velocity);
+			} else {
+				this.velocity = this.velocity - (frameDelta / 1000) * 500;
+			}
+
+			if (this.velocity !== 0) {
+				k = this.y - (this.velocity * (frameDelta / 1000));
+			}
+
+			var collisionHull = [];
+			// Collisions between ticks
+			for (i = 0; i < this.shape.length; i++) {
+				for (j = 0; j <= this.y - k; j++) {
+					collisionHull.push(
+						[this.shape[i][0] + this.x, this.shape[i][1] + Math.floor(this.y - j)]
+					);
+				}
+			}
+
+			this.y = k;
+
+			return collisionHull;
+		},
+		draw: function () {
+			for (i = 0; i < this.shape.length; i++) {
+				drawPixel(this.shape[i][0] + Math.floor(this.x), this.shape[i][1] + Math.floor(this.y), '006600');
+			}
+		}
+	};
+}
+
+var spawnJumpGameShark = function () {
+	return {
+		x: width,
+		y: 24 + Math.floor(frameRandom * 2),
+		shape: [
+			            [2,0],[3,0],
+			      [1,1],[2,1],[3,1],
+			[0,2],[1,2],[2,2],[3,2],
+		],
+		velocity: frameRandom * 50 + 150,
+		// Move and return collision hull
+		tick : function () {
+			k = this.x;
+			if (this.velocity !== 0) {
+				k = this.x - (this.velocity * (frameDelta / 1000));
+			}
+			var collisionHull = [];
+			for (i = 0; i < this.shape.length; i++) {
+				for (j = 0; j <= this.x - k; j++) {
+					collisionHull.push(
+						[this.shape[i][0] + Math.floor(this.x - j), this.shape[i][1] + this.y]
+					);
+				}
+			}
+
+			this.x = k;
+			if (this.x < 0) {
+				jumpGameSharks.splice(jumpGameSharks.indexOf(this), 1);
+			}
+			return collisionHull;
+		},
+		draw: function () {
+			for (i = 0; i < this.shape.length; i++) {
+				drawPixel(this.shape[i][0] + Math.floor(this.x), this.shape[i][1] + Math.floor(this.y), '444444');
+			}
+		}
+	};
+}
+
+var jumpGameSharks = [];
+
+var nextSharkTime = 0;
+var jumpGame = function () {
+	if (!jumpGamePlayer.tick) {
+		jumpGamePlayer = spawnJumpGamePlayer();
+	}
+
+	if (time > nextSharkTime) {
+		jumpGameSharks.push(spawnJumpGameShark());
+		nextSharkTime = time + frameRandom * 1000 + 500;
+	}
+
+	var playerCollisionHull = jumpGamePlayer.tick();
+
+	jumpGamePlayer.draw();
+
+	for (l = 0; l < jumpGameSharks.length; l++) {
+		var sharkCollisionHull = jumpGameSharks[l].tick();
+		if (sharkCollisionHull.some(function (sharkCoordinate) {
+			return playerCollisionHull.some(function (playerCoordinate) {
+				return sharkCoordinate[0] === playerCoordinate[0] && sharkCoordinate[1] == playerCoordinate[1];
+			});
+		})) {
+			jumpGamePlayer = {};
+			jumpGameSharks = [];
+			endGame();
+		}
+	}
+	for (l = 0; l < jumpGameSharks.length; l++) {
+		jumpGameSharks[l].draw();
+	}
+
+	m = Math.floor(time / 10) % 8;
+	for (l = 0; l < width; l += 8) {
+		drawWave(l, height - 8, m, 'cef3fd')
+	}
+}
+
+var gameLoop = function () {
+
+	// Get Delta Time
+	time = performance.now();
+	frameDelta = time  - lastTime;
+	lastTime = time;
+	frameRandom = Math.random()
+
+	// Clear Canvas
+	ctx.fillStyle = '#76f5fb';
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	if (gameMode === 0) {
+		if (keys[13]) {
+			startGame();
+		}
+		deadDelta = time - deadTime;
+		k = deadDelta < 1000 ? Math.floor(deadDelta * (8 / 1000)) : 8 ;
+		drawText(24, k, 'SPACEDODGE II:', 'fb3494');
+		drawText(23, k + 8, 'THE BALI QUEST', 'fb3494');
+
+		if (deadDelta > 4000 && Math.floor(time / 500) % 2 === 0) {
+			drawText(10, 24, 'PRESS ENTER TO START', '78c29e');
+		}
+
+		m = Math.floor(time / 75) % 8;
+		for (l = 0; l < width; l += 8) {
+			drawWave(l, height - 8, m, '58a3d5');
+		}
+		m = Math.floor(time / 100) % 8;
+		for (l = 0; l < width; l += 8) {
+			drawWave(l, height - 10, m, 'cef3fd');
+		}
+		for (l = 0; l < width; l += 8) {
+			drawWave(l, height - 9, m, '58a3d5');
+		}
+		for (l = 0; l < width; l += 8) {
+			drawWave(l, height - 8, m, '3b9b9c');
+		}
+		m = Math.floor(time / 10) % 8;
+		for (l = 0; l < width; l += 8) {
+			drawWave(l, height - 4, m, 'cef3fd');
+		}
+	} else {
+		startDelta = time - startTime;
+		if (keys[27]) {
+			endGame();
+		}
+
+		switch (gameMode) {
+			case 1:
+				getReady();
+				break; // Woah sick breaks dude
+			case 2:
+				jumpGame();
+				break;
+			default:
+				endGame();
+		}
+	}
+
+	// Loop
+	window.requestAnimationFrame(gameLoop);
+}
+
+var handleKeyDown = function (event) {
+	keys[event.keyCode] = true;
+}
+
+var konami = [38,38,40,40,37,39,37,39,66,65]
+var codeEntered = []
+var handleKeyUp = function (event) {
+	delete keys[event.keyCode];
+
+	// Cheat Code
+	if (gameMode === 0) {
+		if (konami[codeEntered.length] === event.keyCode) {
+			codeEntered.push(event.keyCode);
+			if (codeEntered.length === konami.length) {
+				for (i = 0; i < codeEntered.length; i++) {
+					if (codeEntered[i] !== konami[i]) {
+						return;
+					}
+				}
+				konami = true;
+				codeEntered = [];
+			}
+		} else {
+			codeEntered = [];
+		}
+	}
+}
+
+window.addEventListener('keydown', handleKeyDown, true);
+window.addEventListener('keyup', handleKeyUp, true);
+
+window.requestAnimationFrame(gameLoop);
+
+		</script>
+	</body>
+</html>
