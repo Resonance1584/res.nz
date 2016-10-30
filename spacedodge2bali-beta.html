@@ -73,6 +73,7 @@ var skyBlue = '76f5fb';
 var hotPink = 'fb3494';
 var seaGreen = '3b9b9c';
 var sandGold = 'fbd230';
+var waterBlue = '58a3d5';
 
 var origFillStyle = ctx.fillStyle;
 var drawPixel = function (x, y, color) {
@@ -682,6 +683,7 @@ var jumpGame = function () {
 	}
 
 	if (distance < -50) {
+		startTime = time;
 		gameMode = 4;
 	}
 }
@@ -719,6 +721,35 @@ var killScreen = function () {
 
 	if (time - deadTime > 10000 || keys[27] || keys[13]) {
 		endGame();
+	}
+}
+
+var islandDialogue = function () {
+	if (startDelta > 500 && keys[13]) {
+		startTime = time;
+		gameMode = 5;
+	}
+	if (startDelta < 5000) {
+		drawText(26, 2, 'RASTA BRO:', seaGreen);
+		drawText(26, 10, 'WOAH THOSE WERE', waterBlue);
+		drawText(26, 18, 'SOME', waterBlue);
+		drawText(46, 18, 'GNARL', hotPink);
+		drawText(70, 18, 'SHARKS', waterBlue);
+		drawText(26, 26, 'DUDE', waterBlue);
+	} else if (startDelta < 10000) {
+		drawText(26, 2, 'RASTA BRO:', seaGreen);
+		drawText(26, 10, 'GOOD THING YOU', waterBlue);
+		drawText(26, 18, 'YOU HAVE SOME', waterBlue);
+		drawText(26, 26, 'SICK SKILLS', waterBlue);
+	} else if (startDelta < 15000) {
+		drawText(2, 2, 'HERO DUDE:', sandGold);
+		drawText(2, 10, 'I DONT THINK', waterBlue);
+		drawText(2, 18, 'THOSE WERE', waterBlue);
+		drawText(2, 26, 'REGULAR SHARKS BRO', waterBlue);
+	} else if (startDelta < 20000) {
+		drawText(2, 2, 'HERO DUDE:', sandGold);
+		drawText(2, 10, 'I THINK THEY WERE', waterBlue);
+		drawText(2, 18, 'SPACE SHARKS', hotPink);
 	}
 }
 
@@ -782,6 +813,9 @@ var gameLoop = function () {
 				killScreen();
 				break;
 			case 4:
+				islandDialogue();
+				break;
+			case 5:
 				break;
 			default:
 				endGame();
