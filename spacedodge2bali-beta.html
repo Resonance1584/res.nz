@@ -60,8 +60,6 @@ var startTime = time;
 var frameDelta = 0;
 var deadDelta = 0;
 var startDelta = 0;
-var score = 0;
-var highscore = 0;
 var keys = {};
 var i = 0;
 var j = 0;
@@ -397,15 +395,11 @@ var drawWave = function (x, y, offset, color) {
 var startGame = function () {
 	startTime = time;
 	gameMode = 1;
-	score = konami ? 1000 : 0;
 	keys = {};
 	nextSharkTime = time + 3500;
 }
 
 var endGame = function () {
-	if (score > highscore && !konami) {
-		highscore = score;
-	}
 	konami = false;
 	deadTime = time;
 	gameMode = 0;
@@ -545,17 +539,109 @@ var spawnJumpGameShark = function () {
 var jumpGameSharks = [];
 
 var nextSharkTime = 0;
+
+var drawIsland = function (x, y) {
+	for (i = x; i < width; i++) {
+		drawPixel(i, y, sandGold);
+	}
+
+	if (width - x > 6) {
+		for(i = x + 6; i < width; i++) {
+			drawPixel(i, y - 1, sandGold);
+		}
+	}
+
+	if (width - x > 12) {
+		for (i = x + 12; i < width; i++) {
+			drawPixel(i, y - 2, sandGold);
+		}
+	}
+
+	if (width - x > 20) {
+		drawPixel(x + 20, y - 10, '008800');
+		drawPixel(x + 21, y - 10, '008800');
+		drawPixel(x + 21, y - 11, '008800');
+		drawPixel(x + 22, y - 11, '008800');
+		drawPixel(x + 22, y - 14, '008800');
+		drawPixel(x + 23, y - 12, '008800');
+		drawPixel(x + 23, y - 14, '008800');
+		drawPixel(x + 24, y - 12, '008800');
+		drawPixel(x + 24, y - 13, '008800');
+		drawPixel(x + 24, y - 11, 'b57c53');
+		drawPixel(x + 25, y - 12, '008800');
+		drawPixel(x + 25, y - 13, '008800');
+		drawPixel(x + 25, y - 11, '008800');
+		drawPixel(x + 25, y - 10, 'b57c53');
+		drawPixel(x + 25, y - 9, 'b57c53');
+		drawPixel(x + 25, y - 5, 'b57c53');
+		drawPixel(x + 25, y - 4, 'b57c53');
+		drawPixel(x + 25, y - 3, 'b57c53');
+		drawPixel(x + 26, y - 13, '008800');
+		drawPixel(x + 26, y - 11, '008800');
+		drawPixel(x + 26, y - 10, '008800');
+		drawPixel(x + 26, y - 8, 'b57c53');
+		drawPixel(x + 26, y - 7, 'b57c53');
+		drawPixel(x + 26, y - 6, 'b57c53');
+		drawPixel(x + 27, y - 13, '008800');
+		drawPixel(x + 27, y - 10, '008800');
+		drawPixel(x + 27, y - 9, '008800');
+		drawPixel(x + 28, y - 12, '008800');
+	}
+
+	if (width - x > 40) {
+		drawPixel(x + 40, y - 10, '008800');
+		drawPixel(x + 41, y - 10, '008800');
+		drawPixel(x + 41, y - 11, '008800');
+		drawPixel(x + 42, y - 11, '008800');
+		drawPixel(x + 42, y - 14, '008800');
+		drawPixel(x + 43, y - 12, '008800');
+		drawPixel(x + 43, y - 14, '008800');
+		drawPixel(x + 44, y - 12, '008800');
+		drawPixel(x + 44, y - 13, '008800');
+		drawPixel(x + 44, y - 11, 'b57c53');
+		drawPixel(x + 45, y - 12, '008800');
+		drawPixel(x + 45, y - 13, '008800');
+		drawPixel(x + 45, y - 11, '008800');
+		drawPixel(x + 45, y - 10, 'b57c53');
+		drawPixel(x + 45, y - 9, 'b57c53');
+		drawPixel(x + 45, y - 5, 'b57c53');
+		drawPixel(x + 45, y - 4, 'b57c53');
+		drawPixel(x + 45, y - 3, 'b57c53');
+		drawPixel(x + 46, y - 13, '008800');
+		drawPixel(x + 46, y - 11, '008800');
+		drawPixel(x + 46, y - 10, '008800');
+		drawPixel(x + 46, y - 8, 'b57c53');
+		drawPixel(x + 46, y - 7, 'b57c53');
+		drawPixel(x + 46, y - 6, 'b57c53');
+		drawPixel(x + 47, y - 13, '008800');
+		drawPixel(x + 47, y - 10, '008800');
+		drawPixel(x + 47, y - 9, '008800');
+		drawPixel(x + 48, y - 12, '008800');
+	}
+}
+
 var jumpGame = function () {
+	var distance = 1800 - Math.floor(startDelta / 40)
+
 	if (!jumpGamePlayer.tick) {
 		jumpGamePlayer = spawnJumpGamePlayer();
 	}
 
-	if (time > nextSharkTime) {
+	if (time > nextSharkTime && distance > 50) {
 		jumpGameSharks.push(spawnJumpGameShark());
 		nextSharkTime = time + frameRandom * 1000 + 500;
 	}
 
 	var playerCollisionHull = jumpGamePlayer.tick();
+
+
+	if (distance < 900 && distance >= 600) {
+		drawPixel(width - 1, 28, sandGold);
+	}
+	if (distance < 600) {
+		k = Math.floor(60 / Math.max((distance / 60), 1));
+		drawIsland(width - k, 28)
+	}
 
 	for (l = 0; l < width; l++) {
 		drawPixel(l, 29, '58a3d5')
@@ -590,9 +676,14 @@ var jumpGame = function () {
 		drawWave(l, height - 8, m, 'cef3fd')
 	}
 
-	var distance = 1850 - Math.floor(startDelta / 40)
-	distance = distance / 1000 >= 1 ? (distance / 1000).toString().substr(0, 3) + 'KM' : distance + 'M';
-	drawText(54, 4, 'SHORE:' + distance, '78c29e')
+	if (distance > 0) {
+		var distanceText = distance / 1000 >= 1 ? (distance / 1000).toString().substr(0, 3) + 'KM' : distance + 'M';
+		drawText(54, 4, 'SHORE:' + distanceText, '78c29e')
+	}
+
+	if (distance < -50) {
+		gameMode = 4;
+	}
 }
 
 var skull = [1,5,1,8,2,1,2,11,1,3,1,5,2,1,1,1,1,1,1];
@@ -689,6 +780,8 @@ var gameLoop = function () {
 				break;
 			case 3:
 				killScreen();
+				break;
+			case 4:
 				break;
 			default:
 				endGame();
