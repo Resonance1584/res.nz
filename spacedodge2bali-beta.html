@@ -71,6 +71,11 @@ var m = 0;
 var frameRandom = 0;
 var gameMode = 0;
 
+var skyBlue = '76f5fb';
+var hotPink = 'fb3494';
+var seaGreen = '3b9b9c';
+var sandGold = 'fbd230';
+
 var origFillStyle = ctx.fillStyle;
 var drawPixel = function (x, y, color) {
 	origFillStyle = ctx.fillStyle;
@@ -340,6 +345,9 @@ var pixelChars = {
 		      [1,2],
 
 		      [1,4]
+	],
+	'.': [
+		      [1,4]
 	]
 };
 pixelChars['0'] = pixelChars.o;
@@ -403,6 +411,11 @@ var endGame = function () {
 	gameMode = 0;
 }
 
+var goToKillScreen = function () {
+	deadTime = time;
+	gameMode = 3;
+}
+
 var getReady = function () {
 	if (startDelta < 2000) {
 		k = startDelta < 1000 ? Math.floor(startDelta * (100 / 1000)) : 100;
@@ -415,6 +428,7 @@ var getReady = function () {
 		drawText(48, 24, (3 - Math.floor(startDelta / 1000)).toString(), 'fb3494');
 	} else {
 		// Go to next game mode
+		startTime = time;
 		gameMode = 2;
 	}
 
@@ -431,15 +445,17 @@ var spawnJumpGamePlayer = function () {
 		y: 20,
 		initialY: 20,
 		velocity: 0,
-		shape: [
-			            [2,0],[3,0],
-			            [2,1],[3,1],
-			[0,2],[1,2],[2,2],[3,2],[4,2],
-			            [2,3],[3,3],      [5,3],
-			            [2,4],[3,4],
-			            [2,5],[3,5],
-			            [2,6],      [4,6],
-			[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]
+		sprite: [
+			                                             [3,0,'fbd230'],[4,0,'fbd230'],
+			                                             [3,1,'fbd230'],[4,1,'ffd5aa'],
+			               [1,2,'ffd5aa'],[2,2,'ffd5aa'],[3,2,'ffd5aa'],[4,2,'ffd5aa'],[5,2,'ffd5aa'],
+			                                             [3,3,'ffd5aa'],[4,3,'ffd5aa'],               [6,3,'ffd5aa'],
+			                                             [3,4,'00cc22'],[4,4,'00cc22'],
+			                                             [3,5,'00cc22'],               [5,5,'00cc22'],
+			                                             [3,6,'ffd5aa'],               [5,6,'ffd5aa'],
+			[0,7,'444444'],[1,7,'444444'],[2,7,'444444'],[3,7,'ffd5aa'],[4,7,'444444'],[5,7,'ffd5aa'],[6,7,'444444'],[7,7,'444444'],
+			               [1,8,'444444'],[2,8,'fb3494'],[3,8,'ffd5aa'],[4,8,'fb3494'],[5,8,'ffd5aa'],[6,8,'fb3494'],[7,8,'fb3494'],[8,8,'444444'],
+			                              [2,9,'444444'],[3,9,'444444'],[4,9,'444444'],[5,9,'444444'],[6,9,'444444'],[7,9,'444444'],[8,9,'444444'],[9,9,'444444'],
 
 		],
 		// Move and return collision hull
@@ -462,21 +478,21 @@ var spawnJumpGamePlayer = function () {
 
 			var collisionHull = [];
 			// Collisions between ticks
-			for (i = 0; i < this.shape.length; i++) {
+			for (i = 0; i < this.sprite.length; i++) {
 				for (j = 0; j <= this.y - k; j++) {
 					collisionHull.push(
-						[this.shape[i][0] + this.x, this.shape[i][1] + Math.floor(this.y - j)]
+						[this.sprite[i][0] + this.x, this.sprite[i][1] + Math.floor(this.y - j)]
 					);
 				}
 			}
 
-			this.y = k;
+			this.y = this.initialY >= k ? k : this.initialY;
 
 			return collisionHull;
 		},
 		draw: function () {
-			for (i = 0; i < this.shape.length; i++) {
-				drawPixel(this.shape[i][0] + Math.floor(this.x), this.shape[i][1] + Math.floor(this.y), '006600');
+			for (i = 0; i < this.sprite.length; i++) {
+				drawPixel(this.sprite[i][0] + Math.floor(this.x), this.sprite[i][1] + Math.floor(this.y), this.sprite[i][2]);
 			}
 		}
 	};
@@ -485,15 +501,20 @@ var spawnJumpGamePlayer = function () {
 var spawnJumpGameShark = function () {
 	return {
 		x: width,
-		y: 24 + Math.floor(frameRandom * 2),
+		y: 28,
 		shape: [
-			            [2,0],[3,0],
-			      [1,1],[2,1],[3,1],
-			[0,2],[1,2],[2,2],[3,2],
+			                                                      [9,0],[10,0],[11,0],
+			                                                [8,1],[9,1],[10,1],[11,1],
+			                                          [7,2],[8,2],[9,2],[10,2],[11,2],
+			            [2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],[12,3],[13,3],[14,3],
+			      [1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4],[12,4],[13,4],[14,4],[15,4],[16,4],[17,4]
 		],
 		velocity: frameRandom * 50 + 150,
 		// Move and return collision hull
 		tick : function () {
+
+			if (this.y > 24) this.y--;
+
 			k = this.x;
 			if (this.velocity !== 0) {
 				k = this.x - (this.velocity * (frameDelta / 1000));
@@ -515,7 +536,7 @@ var spawnJumpGameShark = function () {
 		},
 		draw: function () {
 			for (i = 0; i < this.shape.length; i++) {
-				drawPixel(this.shape[i][0] + Math.floor(this.x), this.shape[i][1] + Math.floor(this.y), '444444');
+				drawPixel(this.shape[i][0] + Math.floor(this.x), this.shape[i][1] + Math.floor(this.y), i === 15 ? '880000' : '888888');
 			}
 		}
 	};
@@ -536,6 +557,10 @@ var jumpGame = function () {
 
 	var playerCollisionHull = jumpGamePlayer.tick();
 
+	for (l = 0; l < width; l++) {
+		drawPixel(l, 29, '58a3d5')
+	}
+
 	jumpGamePlayer.draw();
 
 	for (l = 0; l < jumpGameSharks.length; l++) {
@@ -547,16 +572,62 @@ var jumpGame = function () {
 		})) {
 			jumpGamePlayer = {};
 			jumpGameSharks = [];
-			endGame();
+			goToKillScreen();
 		}
 	}
 	for (l = 0; l < jumpGameSharks.length; l++) {
 		jumpGameSharks[l].draw();
 	}
 
+	for (l = 0; l < width; l++) {
+		for (m = 30; m < height; m++) {
+			drawPixel(l,m,'3b9b9c')
+		}
+	}
+
 	m = Math.floor(time / 10) % 8;
 	for (l = 0; l < width; l += 8) {
 		drawWave(l, height - 8, m, 'cef3fd')
+	}
+
+	var distance = 1850 - Math.floor(startDelta / 40)
+	distance = distance / 1000 >= 1 ? (distance / 1000).toString().substr(0, 3) + 'KM' : distance + 'M';
+	drawText(54, 4, 'SHORE:' + distance, '78c29e')
+}
+
+var skull = [1,5,1,8,2,1,2,11,1,3,1,5,2,1,1,1,1,1,1];
+
+var drawSkull = function (x, y, color) {
+	var draw = false;
+	k = 0;
+	for (i = 0; i < skull.length; i++) {
+		for (j = 0; j < skull[i]; j++) {
+			if (draw) {
+				drawPixel(x + k % 7, y + Math.floor(k / 7), color);
+			}
+			k++;
+		}
+		draw = !draw;
+	}
+}
+
+var killScreen = function () {
+
+	ctx.fillStyle = '#' + seaGreen;
+	ctx.fillRect(0, Math.floor(canvas.height * 0.4), canvas.width, Math.floor(canvas.height * 0.25));
+	ctx.fillStyle = '#' + sandGold;
+	ctx.fillRect(0, Math.floor(canvas.height * 0.65), canvas.width, Math.floor(canvas.height * 0.35));
+
+	for (l = 1; l < 5; l++) {
+		drawSkull(Math.floor(width * (l / 5)) - 3, 24, hotPink)
+	}
+
+	deadDelta = time - deadTime;
+	k = deadDelta < 4000 ? Math.floor(deadDelta *  (14 / 4000)) : 14;
+	drawText(23, k, 'GAME OVER DUDE', hotPink);
+
+	if (time - deadTime > 10000 || keys[27] || keys[13]) {
+		endGame();
 	}
 }
 
@@ -569,15 +640,15 @@ var gameLoop = function () {
 	frameRandom = Math.random()
 
 	// Clear Canvas
-	ctx.fillStyle = '#76f5fb';
+	ctx.fillStyle = '#' + skyBlue;
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 	if (gameMode === 0) {
-		if (keys[13]) {
+		deadDelta = time - deadTime;
+		if (deadDelta > 500 && keys[13]) {
 			startGame();
 		}
-		deadDelta = time - deadTime;
-		k = deadDelta < 1000 ? Math.floor(deadDelta * (8 / 1000)) : 8 ;
+		k = deadDelta < 1000 ? Math.floor(deadDelta * (8 / 1000)) : 8;
 		drawText(24, k, 'SPACEDODGE II:', 'fb3494');
 		drawText(23, k + 8, 'THE BALI QUEST', 'fb3494');
 
@@ -615,6 +686,9 @@ var gameLoop = function () {
 				break; // Woah sick breaks dude
 			case 2:
 				jumpGame();
+				break;
+			case 3:
+				killScreen();
 				break;
 			default:
 				endGame();
