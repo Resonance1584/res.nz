@@ -853,7 +853,7 @@ var dialogue = [
 		drawText(2, 5, 'HERO DUDE:', sandGold);
 		drawText(2, 13, 'WHAT WOULD MAKE', waterBlue);
 		drawText(2, 21, 'THEM COME BACK', waterBlue);
-		drawText(2, 29, 'TO BALI NOW?', waterBlue);
+		drawText(2, 29, 'TO BALI NOW BRO?', waterBlue);
 		drawFrameLeft();
 		drawSprite(84, 13, heroDudeFace);
 	}),
@@ -890,7 +890,7 @@ var dialogue = [
 	}),
 	(() => {
 		drawText(2, 5, 'HERO DUDE:', sandGold);
-		drawText(2, 13, 'RIGHT ON DUDE!', waterBlue);
+		drawText(2, 13, 'RIGHT ON BRO!', waterBlue);
 		drawText(2, 21, 'ILL HEAD THERE', waterBlue);
 		drawText(2, 29, 'RIGHT AWAY', waterBlue);
 		drawFrameLeft();
@@ -934,9 +934,10 @@ var islandDialogue = function () {
 
 var islandMonkeys = function () {
 	var colors = [seaGreen, waterBlue, hotPink, sandGold];
+	var k = 0;
 	for (var i = 2; i < width - 2; i += 8) {
 		for (var j = 0; j < height; j += 8) {
-			drawSkull(i, j, colors[(Math.floor(Math.random() * colors.length))])
+			drawSkull(i, j, colors[(Math.floor(time / 100) + ++k) % colors.length])
 		}
 	}
 
