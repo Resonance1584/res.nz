@@ -755,80 +755,146 @@ var killScreen = function () {
 
 // --- Island Dialogue
 
+var drawFrameRight = function () {
+	drawPixel(24, 7, '000000');
+	for (var i = 7; i < 35; i++) {
+		drawPixel(23, i, '000000');
+	}
+	for (var i = 23; i < 99; i++) {
+		drawPixel(i, 35, '000000');
+	}
+}
+
+var drawFrameLeft = function () {
+	drawPixel(74, 7, '000000');
+	for (var i = 7; i < 35; i++) {
+		drawPixel(75, i, '000000');
+	}
+	for (var i = 1; i < 76; i++) {
+		drawPixel(i, 35, '000000');
+	}
+}
+
+var rastaBroFace = [
+	[5,0,palmBrown],[6,0,palmBrown],[7,0,palmBrown],
+	[1,1,palmBrown],[2,1,palmBrown],[3,1,palmBrown],[4,1,palmBrown],[5,1,palmBrown],[6,1,palmBrown],[7,1,palmBrown],[8,1,palmBrown],[9,1,palmBrown],[10,1,palmBrown],[11,1,palmBrown],
+	[1,2,palmBrown],[3,2,palmBrown],[4,2,palmBrown],[5,2,palmBrown],[6,2,palmBrown],[7,2,palmBrown],[8,2,palmBrown],[9,2,palmBrown],[11,2,palmBrown],
+	[0,3,palmBrown],[3,3,palmBrown],[4,3,seaGreen],[5,3,seaGreen],[6,3,seaGreen],[7,3,seaGreen],[8,3,seaGreen],[9,3,palmBrown],[12,3,palmBrown],
+	[3,4,palmBrown],[4,4,'ffd5aa'],[5,4,'000000'],[6,4,'ffd5aa'],[7,4,'000000'],[8,4,'ffd5aa'],[9,4,palmBrown],
+	[2,5,palmBrown],[4,5,'ffd5aa'],[5,5,'ffd5aa'],[6,5,'ffd5aa'],[7,5,'ffd5aa'],[8,5,'ffd5aa'],[10,5,palmBrown],
+	[2,6,palmBrown],[4,6,'ffd5aa'],[5,6,'dfbcb6'],[6,6,'dfbcb6'],[7,6,'dfbcb6'],[8,6,'ffd5aa'],[10,6,palmBrown],
+	[5,7,'ffd5aa'],[6,7,'ffd5aa'],[7,7,'ffd5aa']
+];
+
+var heroDudeFace = [
+	[2,0,sandGold],[3,0,sandGold],[4,0,sandGold],
+	[1,1,sandGold],[2,1,sandGold],[3,1,sandGold],[4,1,sandGold],[5,1,sandGold],
+	[0,2,sandGold],[1,2,sandGold],[2,2,'dda366'],[3,2,'dda366'],[4,2,'dda366'],[5,2,sandGold],[6,2,sandGold],
+	[0,3,sandGold],[1,3,'dda366'],[2,3,'000000'],[3,3,'dda366'],[4,3,'000000'],[5,3,'dda366'],[6,3,sandGold],
+	[1,4,'dda366'],[2,4,'dda366'],[3,4,'dda366'],[4,4,'dda366'],[5,4,'dda366'],
+	[1,5,'dda366'],[2,5,'dfbcb6'],[3,5,'dfbcb6'],[4,5,'dfbcb6'],[5,5,'dda366'],
+	[2,6,'dda366'],[3,6,'dda366'],[4,6,'dda366']
+
+];
+
 var nextIslandDialogue = 0;
 var nextIslandDialogueTime = time + 5000;
 var dialogue = [
 	(() => {
-		drawText(26, 2, 'RASTA BRO:', seaGreen);
-		drawText(26, 10, 'WOAH THOSE WERE', waterBlue);
-		drawText(26, 18, 'SOME', waterBlue);
-		drawText(46, 18, 'GNARL', hotPink);
-		drawText(70, 18, 'SHARKS', waterBlue);
-		drawText(26, 26, 'DUDE', waterBlue);
+		drawText(26, 5, 'RASTA BRO:', seaGreen);
+		drawText(26, 13, 'WOAH THOSE WERE', waterBlue);
+		drawText(26, 21, 'SOME', waterBlue);
+		drawText(46, 21, 'GNARL', hotPink);
+		drawText(70, 21, 'SHARKS', waterBlue);
+		drawText(26, 29, 'DUDE', waterBlue);
+		drawFrameRight();
+		drawSprite(5, 12, rastaBroFace);
 	}),
 	(() => {
-		drawText(26, 2, 'RASTA BRO:', seaGreen);
-		drawText(26, 10, 'GOOD THING YOU', waterBlue);
-		drawText(26, 18, 'YOU HAVE SOME', waterBlue);
-		drawText(26, 26, 'SICK SKILLS', waterBlue);
+		drawText(26, 5, 'RASTA BRO:', seaGreen);
+		drawText(26, 13, 'GOOD THING YOU', waterBlue);
+		drawText(26, 21, 'YOU HAVE SOME', waterBlue);
+		drawText(26, 29, 'SICK SKILLS', waterBlue);
+		drawFrameRight();
+		drawSprite(5, 12, rastaBroFace);
 	}),
 	(() => {
-		drawText(2, 2, 'HERO DUDE:', sandGold);
-		drawText(2, 10, 'I DONT THINK', waterBlue);
-		drawText(2, 18, 'THOSE WERE', waterBlue);
-		drawText(2, 26, 'REGULAR SHARKS BRO', waterBlue);
+		drawText(2, 5, 'HERO DUDE:', sandGold);
+		drawText(2, 13, 'I DONT THINK', waterBlue);
+		drawText(2, 21, 'THOSE WERE', waterBlue);
+		drawText(2, 29, 'REGULAR SHARKS BRO', waterBlue);
+		drawFrameLeft();
+		drawSprite(84, 13, heroDudeFace);
 	}),
 	(() => {
-		drawText(2, 2, 'HERO DUDE:', sandGold);
-		drawText(2, 10, 'I THINK THEY WERE', waterBlue);
-		drawText(2, 18, 'SPACE SHARKS', hotPink);
+		drawText(2, 5, 'HERO DUDE:', sandGold);
+		drawText(2, 13, 'I THINK THEY WERE', waterBlue);
+		drawText(2, 21, 'SPACE SHARKS', hotPink);
+		drawFrameLeft();
+		drawSprite(84, 13, heroDudeFace);
 	}),
 	(() => {
-		drawText(26, 2, 'RASTA BRO:', seaGreen);
-		drawText(26, 10, 'WOAH THATS TOTALLY', waterBlue);
-		drawText(26, 18, 'NOT CHILL!', waterBlue);
-		drawText(26, 26, 'WE HAVENT HAD', waterBlue);
+		drawText(26, 5, 'RASTA BRO:', seaGreen);
+		drawText(26, 13, 'WOAH THATS TOTALLY', waterBlue);
+		drawText(26, 21, 'NOT CHILL!', waterBlue);
+		drawText(26, 29, 'WE HAVENT HAD', waterBlue);
+		drawFrameRight();
+		drawSprite(5, 12, rastaBroFace);
 	}),
 	(() => {
-		drawText(26, 2, 'RASTA BRO:', seaGreen);
-		drawText(26, 10, 'SPACE SHARKS', hotPink);
-		drawText(26, 18, 'HERE IN BALI', waterBlue);
-		drawText(26, 26, 'SINCE 89 DUDE!', waterBlue);
+		drawText(26, 5, 'RASTA BRO:', seaGreen);
+		drawText(26, 13, 'SPACE SHARKS', hotPink);
+		drawText(26, 21, 'HERE IN BALI', waterBlue);
+		drawText(26, 29, 'SINCE 89 DUDE!', waterBlue);
+		drawFrameRight();
+		drawSprite(5, 12, rastaBroFace);
 	}),
 	(() => {
-		drawText(2, 2, 'HERO DUDE:', sandGold);
-		drawText(2, 10, 'WHAT WOULD MAKE', waterBlue);
-		drawText(2, 18, 'THEM COME BACK', waterBlue);
-		drawText(2, 26, 'TO BALI NOW?', waterBlue);
+		drawText(2, 5, 'HERO DUDE:', sandGold);
+		drawText(2, 13, 'WHAT WOULD MAKE', waterBlue);
+		drawText(2, 21, 'THEM COME BACK', waterBlue);
+		drawText(2, 29, 'TO BALI NOW?', waterBlue);
+		drawFrameLeft();
+		drawSprite(84, 13, heroDudeFace);
 	}),
 	(() => {
-		drawText(26, 2, 'RASTA BRO:', seaGreen);
-		drawText(26, 10, 'IM NOT SURE DUDE', waterBlue);
-		drawText(26, 18, 'BUT I KNOW WHO', waterBlue);
-		drawText(26, 26, 'MIGHT KNOW', waterBlue);
+		drawText(26, 5, 'RASTA BRO:', seaGreen);
+		drawText(26, 13, 'IM NOT SURE DUDE', waterBlue);
+		drawText(26, 21, 'BUT I KNOW WHO', waterBlue);
+		drawText(26, 29, 'MIGHT KNOW', waterBlue);
+		drawFrameRight();
+		drawSprite(5, 12, rastaBroFace);
 	}),
 	(() => {
-		drawText(26, 2, 'RASTA BRO:', seaGreen);
-		drawText(26, 10, 'YOU SHOULD TALK TO', waterBlue);
-		drawText(26, 18, 'THE SCIENTISTS', hotPink);
+		drawText(26, 5, 'RASTA BRO:', seaGreen);
+		drawText(26, 13, 'YOU SHOULD TALK TO', waterBlue);
+		drawText(26, 21, 'THE SCIENTISTS', hotPink);
+		drawFrameRight();
+		drawSprite(5, 12, rastaBroFace);
 	}),
 	(() => {
-		drawText(26, 2, 'RASTA BRO:', seaGreen);
-		drawText(26, 10, 'THEYRE IN THE', waterBlue);
-		drawText(26, 18, 'SECRET LAB', hotPink);
-		drawText(26, 26, 'ACROSS THE ISLAND', waterBlue);
+		drawText(26, 5, 'RASTA BRO:', seaGreen);
+		drawText(26, 13, 'THEYRE IN THE', waterBlue);
+		drawText(26, 21, 'SECRET LAB', hotPink);
+		drawText(26, 29, 'ACROSS THE ISLAND', waterBlue);
+		drawFrameRight();
+		drawSprite(5, 12, rastaBroFace);
 	}),
 	(() => {
-		drawText(26, 2, 'RASTA BRO:', seaGreen);
-		drawText(26, 10, 'LOOK OUT FOR', waterBlue);
-		drawText(26, 18, 'THE RABID MONKEYS', hotPink);
-		drawText(26, 26, 'ON THE WAY', waterBlue);
+		drawText(26, 5, 'RASTA BRO:', seaGreen);
+		drawText(26, 13, 'LOOK OUT FOR', waterBlue);
+		drawText(26, 21, 'THE RABID MONKEYS', hotPink);
+		drawText(26, 29, 'ON THE WAY', waterBlue);
+		drawFrameRight();
+		drawSprite(5, 12, rastaBroFace);
 	}),
 	(() => {
-		drawText(2, 2, 'HERO DUDE:', sandGold);
-		drawText(2, 10, 'RIGHT ON DUDE!', waterBlue);
-		drawText(2, 18, 'ILL HEAD THERE', waterBlue);
-		drawText(2, 26, 'RIGHT AWAY', waterBlue);
+		drawText(2, 5, 'HERO DUDE:', sandGold);
+		drawText(2, 13, 'RIGHT ON DUDE!', waterBlue);
+		drawText(2, 21, 'ILL HEAD THERE', waterBlue);
+		drawText(2, 29, 'RIGHT AWAY', waterBlue);
+		drawFrameLeft();
+		drawSprite(84, 13, heroDudeFace);
 	})
 ]
 var goToIslandDialogue = function () {
