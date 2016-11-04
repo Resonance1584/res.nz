@@ -88,6 +88,7 @@ var sandGold = 'fbd230';
 var waterBlue = '58a3d5';
 var palmGreen = '008800';
 var palmBrown = 'b57c53';
+var seaFoam = 'cef3fd';
 
 
 // Draws an 8x8 pixel
@@ -509,9 +510,7 @@ var spawnJumpGamePlayer = function () {
 			return collisionHull;
 		},
 		draw: function () {
-			for (var i = 0; i < this.sprite.length; i++) {
-				drawPixel(this.sprite[i][0] + Math.floor(this.x), this.sprite[i][1] + Math.floor(this.y), this.sprite[i][2]);
-			}
+			drawSprite(this.x, this.y, this.sprite);
 		}
 	};
 }
@@ -613,6 +612,19 @@ var drawIsland = function (x, y) {
 	}
 }
 
+var surfWave = [
+	[8,0,seaFoam],[9,0,seaFoam],
+	[6,1,seaFoam],[7,1,seaGreen],[8,1,waterBlue],
+	[5,2,seaFoam],[6,2,seaGreen],[7,2,waterBlue],
+	[2,3,seaFoam],[3,3,seaFoam],[4,3,seaFoam],[5,3,seaGreen],[6,3,waterBlue],
+	[0,4,seaGreen],[1,4,seaGreen],[2,4,seaGreen],[3,4,seaGreen],[4,4,seaGreen],[5,4,seaGreen],[6,4,waterBlue],
+	[0,5,seaGreen],[1,5,seaGreen],[2,5,seaGreen],[3,5,seaGreen],[4,5,seaGreen],[5,5,seaGreen],[6,5,waterBlue],
+	[0,6,seaGreen],[1,6,seaGreen],[2,6,seaGreen],[3,6,seaGreen],[4,6,seaGreen],[5,6,seaGreen],[6,6,seaGreen],[7,6,waterBlue],
+	[0,7,seaGreen],[1,7,seaGreen],[2,7,seaGreen],[3,7,seaGreen],[4,7,seaGreen],[5,7,seaGreen],[6,7,seaGreen],[7,7,seaGreen],[8,7,waterBlue],[9,7,seaFoam],
+	[0,8,seaGreen],[1,8,seaGreen],[2,8,seaGreen],[3,8,seaGreen],[4,8,seaGreen],[5,8,seaGreen],[6,8,seaGreen],[7,8,seaGreen],[8,8,seaGreen],[9,8,waterBlue],[10,8,seaFoam],
+	[0,9,seaGreen],[1,9,seaGreen],[2,9,seaGreen],[3,9,seaGreen],[4,9,seaGreen],[5,9,seaGreen],[6,9,seaGreen],[7,9,seaGreen],[8,9,seaGreen],[9,9,seaGreen],[10,9,waterBlue],[11,9,seaFoam]
+];
+
 var jumpGameSharks = [];
 var nextSharkTime = 0;
 var jumpGame = function () {
@@ -630,7 +642,6 @@ var jumpGame = function () {
 
 	var playerCollisionHull = jumpGamePlayer.tick();
 
-
 	if (distance < 900 && distance >= 600) {
 		drawPixel(width - 1, 28, sandGold);
 	}
@@ -639,7 +650,7 @@ var jumpGame = function () {
 		drawIsland(width - islandOffset, 28)
 	}
 
-	for (var i = 0; i < width; i++) {
+	for (var i = 12; i < width; i++) {
 		drawPixel(i, 29, '58a3d5')
 	}
 
@@ -661,6 +672,23 @@ var jumpGame = function () {
 	}
 	for (var i = 0; i < jumpGameSharks.length; i++) {
 		jumpGameSharks[i].draw();
+	}
+
+	// Draw Waves
+	drawSprite(0, 20, surfWave);
+	switch (Math.floor(time / 100) % 3) {
+		case 0:
+			drawPixel(6,24,seaGreen);
+			drawPixel(6,25,seaFoam);
+			break;
+		case 1:
+			drawPixel(6,24,seaFoam);
+			drawPixel(8,28,seaFoam);
+			break;
+		case 2:
+			drawPixel(6,26,seaFoam);
+			drawPixel(7,27,seaFoam);
+			break;
 	}
 
 	for (var i = 0; i < width; i++) {
