@@ -49,7 +49,6 @@ var width = 100;
 var time = 0;
 var score = 0;
 var highscore = 0;
-var lastTime = 0;
 var lastMove = 0;
 var deadTime = 0;
 var nextHazardTime = 0;
@@ -281,6 +280,64 @@ var drawText = function (x, y, text, color, size) {
 	}
 }
 
+var blackKeys = [
+	69.2957,
+	77.7817,
+	92.4986,
+	103.826,
+	116.541,
+	138.591,
+	155.563,
+	184.997,
+	207.652,
+	233.082,
+	277.183,
+	311.127,
+	369.994,
+	415.305,
+	466.164,
+	554.365,
+	622.254,
+	739.989,
+	830.609,
+	932.328
+]
+
+var audioCtx = new AudioContext();
+var oscillator = audioCtx.createOscillator();
+oscillator.type = 'square';
+oscillator.frequency.value = blackKeys[5];
+oscillator.start();
+
+var oscillator2 = audioCtx.createOscillator();
+oscillator2.type = 'triangle';
+oscillator2.frequency.value = blackKeys[5];
+oscillator2.start();
+
+var oscillator3 = audioCtx.createOscillator();
+oscillator3.type = 'square'
+oscillator3.frequency.value = blackKeys[5];
+oscillator3.start();
+
+var gainNode = audioCtx.createGain();
+gainNode.gain.value = 0.05;
+gainNode.connect(audioCtx.destination);
+
+var gainNode2 = audioCtx.createGain();
+gainNode2.gain.value = 0.2;
+gainNode2.connect(audioCtx.destination);
+
+var gainNode3 = audioCtx.createGain();
+gainNode3.gain.value = 0.2;
+gainNode3.connect(audioCtx.destination);
+
+var audioStartTime = 1000;
+var audioStopTime = -1;
+var audio2StartTime = 1000;
+var audio2StopTime = -1;
+var audio3StartTime = 1000;
+var audio3StopTime = -1;
+
 var hazards = [
 ];
 
@@ -405,6 +462,7 @@ var spawnAmmo = function () {
 }
 
 var randomColor = function () {
+	// 16777215 is FFFFFF
 	return Math.floor(Math.random() * 16777215).toString(16)
 }
 
@@ -419,11 +477,12 @@ var startGame = function () {
 	player.x = 2;
 	player.y = 10;
 	player.isDead = false;
-	player.rockets = player.konami ? 3 : 0;
+	player.rockets = player.konami ? 101 : 0;
 	hazards = [];
 	rockets = [];
 	ammos = [];
 	keys = {};
+	gainNode.gain.value = 0.01;
 }
 
 var endGame = function () {
@@ -433,20 +492,33 @@ var endGame = function () {
 	player.isDead = true;
 	player.konami = false;
 	deadTime = time;
+	if (audioOn) {
+		audioStopTime = time + (2000);
+		oscillator.frequency.value = blackKeys[2];
+		oscillator.connect(gainNode);
+	}
+	gainNode.gain.value = 0.05;
 }
 
+var audioOn = true;
 var gameLoop = function () {
 
 	// Get Delta Time
 	time = performance.now();
-	lastTime = time;
 	frameRandom = Math.random()
 
 	// Clear Canvas
 	ctx.fillStyle = 'black';
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+	// Mute Key 'm'
+	if (keys[77]) {
+		audioOn = !audioOn;
+		delete keys[77];
+	}
+
 	if (player.isDead) {
+		// Enter
 		if (keys[13]) {
 			startGame()
 		}
@@ -477,12 +549,27 @@ var gameLoop = function () {
 				drawText(4, 4, 'SPACE DODGE', brightRandomColor());
 				drawText(4, 10, 'PRESS ENTER TO START', brightRandomColor());
 			}
+
+			if (audioOn && time > (audioStartTime + 1000)) {
+				audioStartTime = time;
+				oscillator.frequency.value = blackKeys[Math.floor(frameRandom * 6) + 2];
+				oscillator.connect(gainNode);
+				audioStopTime = time + 1000;
+			}
+
+			if (audioOn && time > (audio2StartTime + 1000)) {
+				audio2StartTime = time;
+				oscillator2.frequency.value = blackKeys[14 - (Math.floor(time / 1000) % 4) + (Math.floor(time / 1000) % 12 < 4 ? 3 : 0)];
+				oscillator2.connect(gainNode2);
+				audio2StopTime = time + 250;
+			}
 		}
 	} else {
 
 		// Update World State
 		if (time - lastMove > 50) {
 			lastMove = time;
+			// Arrow keys
 			if (keys[37] && player.x > player.minX) {
 				player.x = player.x - 1;
 			}
@@ -513,10 +600,17 @@ var gameLoop = function () {
 			}
 		}
 
+		// Spacebar
 		if (keys[32] && time > nextRocketTime && player.rockets > 0) {
 			nextRocketTime = time + 250;
 			player.rockets = player.rockets - 1;
 			spawnRocket();
+			if (audioOn) {
+				audio3StartTime = time;
+				oscillator3.frequency.value = blackKeys[19];
+				oscillator3.connect(gainNode3);
+				audio3StopTime = time + 200;
+			}
 		}
 
 		if (hazards.length < (5 + Math.floor(score / 10)) && time > nextHazardTime) {
@@ -547,7 +641,14 @@ var gameLoop = function () {
 			nextHazardMoveTime = time + 20;
 			hazards = hazards.filter(function (hazard) {
 				hazard.x = hazard.x - 1;
-				if (hazard.x < 0) score++;
+				if (hazard.x < 0) {
+					score++;
+					if (audioOn && !(time < audioStopTime)) {
+						audioStopTime = time + (200);
+						oscillator.frequency.value = blackKeys[4];
+						oscillator.connect(gainNode);
+					}
+				}
 
 				// Check for collisions after step
 				if (player.containsHazard(hazard)) {
@@ -557,6 +658,16 @@ var gameLoop = function () {
 					for (k = 0; k < rockets.length; k++) {
 						if (rockets[k].containsHazard(hazard)) {
 							rockets.splice(k, 1);
+							if (audioOn) {
+								oscillator.frequency.value = blackKeys[6];
+								audioStartTime = time;
+								audioStopTime = time + 250;
+								gainNode.gain.value = 0.5;
+								setTimeout(function () {
+									gainNode.gain.value = 0.01;
+								}, 250)
+								oscillator.connect(gainNode);
+							}
 							return false;
 						}
 					}
@@ -576,6 +687,12 @@ var gameLoop = function () {
 					for (k = 0; k < hazards.length; k++) {
 						if (rocket.containsHazard(hazards[k])) {
 							hazards.splice(k, 1);
+							if (audioOn) {
+								oscillator.frequency.value = blackKeys[10];
+								audioStartTime = time;
+								audioStopTime = time + 250;
+								oscillator.connect(gainNode);
+							}
 							return false;
 						}
 					}
@@ -584,6 +701,7 @@ var gameLoop = function () {
 			})
 
 			// Move / Collide Ammos
+			// Do this at same speed as rockets
 			ammos = ammos.filter(function (ammo) {
 				ammo.x = ammo.x - 1;
 
@@ -591,6 +709,12 @@ var gameLoop = function () {
 				if (ammo.x >= 0) {
 					if (player.containsCoordinate(ammo.x, ammo.y)) {
 						player.rockets = player.rockets + 1;
+						if (audioOn) {
+							oscillator3.frequency.value = 1400;
+							audio3StopTime = time;
+							audio3StopTime = time + 200;
+							oscillator3.connect(gainNode3);
+						}
 						return false;
 					}
 				}
@@ -599,22 +723,34 @@ var gameLoop = function () {
 		}
 
 		// Draw World
+		// Glitch mode text if score exceeds screen size
 		if (score.toString().length > 8) {
 			drawText(60, 14, '??????????', brightRandomColor());
 		}
 		if (score.toString().length > 4) {
 			drawText(60, 14, 'S:' + score, brightRandomColor());
 		} else {
+			// Flash score if new high score
 			if (highscore > 0 && score - highscore === 1) {
 				drawText(60, 14, 'SCORE:' + score, brightRandomColor());
+				if (audioOn && time > audio2StartTime + 500) {
+					audio2StartTime = time;
+					oscillator2.frequency.value = blackKeys[18];
+					oscillator2.connect(gainNode2);
+					audio2StopTime = time + 150;
+				}
 			} else {
 				drawText(60, 14, 'SCORE:' + score, '606060');
 			}
 
 		}
 		if (player.rockets > 0) {
-			drawText(88, 1, 'R:', '606060');
-			drawText(96, 1, player.rockets.toString(), '0000FF');
+			drawText(84, 1, 'R:', '606060');
+			if (player.rockets > 99) {
+				drawText(92, 1, '??', '0000FF');
+			} else {
+				drawText(92, 1, player.rockets.toString(), '0000FF');
+			}
 		}
 		for (i = 0; i < ammos.length; i++) {
 			ammos[i].draw();
@@ -626,6 +762,34 @@ var gameLoop = function () {
 		for (i = 0; i < rockets.length; i++) {
 			rockets[i].draw();
 		}
+
+
+		if (audioOn && time > (audio2StartTime + 500)) {
+			audio2StartTime = time;
+			oscillator2.frequency.value = blackKeys[10 - (score % 2 == 0 ? 4 : 3) + (Math.floor(time / 1000) % 4) + (Math.floor(time / 1000) % 8 < 4 ? 3 : 0) + (Math.floor(time / 1000) % 7 === 0 ? (frameRandom > 0.3 ? 6 : 0) : 0) ];
+			oscillator2.connect(gainNode2);
+			audio2StopTime = time + 250;
+		}
+	}
+
+	if (audioStopTime >= 0 && time > audioStopTime) {
+		oscillator.disconnect(gainNode);
+		audioStopTime = -1;
+	}
+
+	if (audio2StopTime >= 0 && time > audio2StopTime) {
+		oscillator2.disconnect(gainNode2);
+		audio2StopTime = -1;
+	}
+
+	if (audio3StopTime >= 0 && time > audio3StopTime) {
+		oscillator3.disconnect(gainNode3);
+		audio3StopTime = -1;
+	}
+
+	// Audio3 effect
+	if (time > audio3StartTime && time < audio3StopTime) {
+		oscillator3.frequency.value = blackKeys[Math.max(5, 19 - Math.floor((time - audio3StartTime) / (20)))]
 	}
 
 	// Loop
@@ -652,6 +816,24 @@ var handleKeyUp = function (event) {
 					}
 				}
 				player.konami = true;
+				if (audioOn) {
+					audio3StartTime = performance.now();
+					oscillator3.frequency.value = blackKeys[15];
+					oscillator3.connect(gainNode3);
+					audio3StopTime = audio3StartTime + 500;
+					setTimeout(function () {
+						audio3StartTime = performance.now();
+						oscillator3.frequency.value = blackKeys[11];
+						oscillator3.connect(gainNode3);
+						audio3StopTime = audio3StartTime + 500;
+					}, 510)
+					setTimeout(function () {
+						audio3StartTime = performance.now();
+						oscillator3.frequency.value = blackKeys[17];
+						oscillator3.connect(gainNode3);
+						audio3StopTime = audio3StartTime + 1000;
+					}, 1010)
+				}
 				codeEntered = [];
 			}
 		} else {
