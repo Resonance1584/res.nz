@@ -636,8 +636,10 @@ var jumpGame = function () {
 	}
 
 	if (time > nextSharkTime && distance > 50 && distance < 1750) {
-		jumpGameSharks.push(spawnJumpGameShark());
-		nextSharkTime = time + frameRandom * 1000 + 500;
+		if (jumpGameSharks.length < 2) {
+			jumpGameSharks.push(spawnJumpGameShark());
+		}
+		nextSharkTime = frameRandom < 0.25 ? (time + 200) : (time + frameRandom * 1000 + 700);
 	}
 
 	var playerCollisionHull = jumpGamePlayer.tick();
@@ -933,13 +935,19 @@ var islandDialogue = function () {
 // --- Island Monkey Game Mode
 
 var islandMonkeys = function () {
-	var colors = [seaGreen, waterBlue, hotPink, sandGold];
+	var colors = [sandGold, seaGreen, waterBlue, hotPink];
 	var k = 0;
 	for (var i = 2; i < width - 2; i += 8) {
 		for (var j = 0; j < height; j += 8) {
 			drawSkull(i, j, colors[(Math.floor(time / 100) + ++k) % colors.length])
 		}
 	}
+	for(var i = 19; i < 80; i++) {
+		for(var j = 13; j < 20; j++) {
+			drawPixel(i, j, '000000');
+		}
+	}
+	drawText(20, 14, 'TO BE CONTINUED', hotPink);
 
 }
 
