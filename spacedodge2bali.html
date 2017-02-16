@@ -1691,6 +1691,10 @@ var gameLoop = function () {
 	// Get Delta Time
 	time = performance.now();
 	frameDelta = time  - lastTime;
+	// Hack to stop freezing if we're suspended in background
+	if (frameDelta > 1000) {
+		frameDelta = 1000;
+	}
 	lastTime = time;
 	frameRandom = Math.random();
 
