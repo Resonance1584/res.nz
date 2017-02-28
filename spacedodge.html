@@ -20,6 +20,10 @@ h1 {
 h1.title {
 	text-shadow: 5px 2px 10px aquamarine;
 }
+p {
+	margin-left: 20px;
+	margin-right: 20px;
+}
 div.container {
 	margin-left: auto;
 	margin-right: auto;
@@ -35,8 +39,25 @@ canvas#game {
 	</head>
 	<body>
 		<div class="container">
-			<h1 class="title">SpaceDodge</h1>
 			<canvas id="game" width="800" height="160"></canvas>
+			<h1 class="title">SpaceDodge</h1>
+			<p><strong>Earth Year 2117:</strong> Humanity has expanded her reach to the <strong>outer edges of the galaxy</strong>. The advent of <em>near speed of light travel</em> has ushered in a new age of <em>bold exploration</em> in the dark and distant corners of the Milky Way. <strong>Commander Hero</strong> - Earth's greatest <em>Starfighter Pilot</em> - is trying to find a new <em>Gravitational Slingshot</em> around a distant <em>Black Hole</em>. Suddenly alarms sound and his console lights up with warnings! He's been ambushed by the evil <strong>Space Dots</strong>! Will <strong>Commander Hero</strong> be able to dodge the <strong>Space Dots</strong> and escape back to Earth?
+			</p>
+			<h2>Instructions</h2>
+			<p>Dodge the Space Dots for as long as possible and try to get a new High Score!</p>
+			<h2>Controls</h2>
+			<p><strong>Requires Keyboard</strong></p>
+			<p>
+				<ul>
+					<li>[ <strong>&uarr;</strong> ] [ <strong>&darr;</strong> ] [ <strong>&larr;</strong> ] [ <strong>&rarr;</strong> ] Dodge the evil Red Space Dots.
+					</li>
+					<li>[ <strong>M</strong> ] Mute Sounds / Music
+					<li>[ <strong>Enter</strong> ] Start Game
+					</li>
+					<li>[ <strong>SpaceBar</strong> ] Fire Missile (Requires Ammo). Pick up Blue Dots to gain Ammo.
+					</li>
+				</ul>
+			</p>
 		</div>
 		<script>
 'use strict';
