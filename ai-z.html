@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Prototype</title>
+</head>
+<body>
+  <canvas id="canvas" width="600" height="480"></canvas>
+  <p>Simple Game AI Test</p>
+  <p>Move the blue square using the arrow keys</p>
+  <p>If the green square turns orange it is trying to reach you. If it turns red it is attacking. Purple mean's it is thinking. The red box represents the AI's zone in which it will look for the player.</p>
+  <script>
+'use strict'
+
+const debug = false
+
+const canvas = document.getElementById('canvas')
+const ctx = canvas.getContext('2d')
+const width = 600
+const height = 480
+
+const KEYCODES = {
+  'ARROW_LEFT': 37,
+  'ARROW_UP': 38,
+  'ARROW_RIGHT': 39,
+  'ARROW_DOWN': 40
+}
+const keys = {}
+const entities = []
+
+const handleKeyDown = (event) => {
+  keys[event.keyCode] = true
+}
+const handleKeyUp = (event) => {
+  delete keys[event.keyCode]
+}
+
+window.addEventListener('keydown', handleKeyDown, true)
+window.addEventListener('keyup', handleKeyUp, true)
+
+const player = {
+  name: 'player',
+  x: 10,
+  y: 10,
+  moveSpeed: 50,
+  tick: function (time, dt) {
+    if (keys[KEYCODES.ARROW_LEFT]) {
+      // Left
+      this.x = this.x - (this.moveSpeed * dt);
+    }
+    if (keys[KEYCODES.ARROW_UP]) {
+      // Up
+      this.y = this.y - (this.moveSpeed * dt);
+    }
+    if (keys[KEYCODES.ARROW_RIGHT]) {
+      // Right
+      this.x = this.x + (this.moveSpeed * dt);
+    }
+    if (keys[KEYCODES.ARROW_DOWN]) {
+      // Down
+      this.y = this.y + (this.moveSpeed * dt);
+    }
+
+    this.x = Math.max(5, Math.min(width - 5, this.x))
+    this.y = Math.max(5, Math.min(height - 5, this.y))
+
+    ctx.fillStyle = '#00cccc'
+    ctx.fillRect(this.x -5, this.y -5, 10, 10)
+  }
+}
+
+entities.push(player)
+
+const distance2d = (p1, p2) => {
+  return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2))
+}
+
+const randomRange = (range) => {
+  return (Math.random() * (range[1] - range[0])) + range [0]
+}
+
+const AI_STATES = {
+  PATROLING: 'PATROLING',
+  THINKING: 'THINKING',
+  HUNTING: 'HUNTING',
+  ATTACKING: 'ATTACKING'
+}
+
+const zone = {
+  min: {
+    x: 100,
+    y: 100
+  },
+  max: {
+    x: width - 100,
+    y: height - 100
+  }
+}
+
+const spawnAi = (x, y, zone) => {
+  return {
+    name: 'ai',
+    x: x,
+    y: y,
+    target: null,
+    zone: zone,
+    player: player,
+    weapon: {
+      range: 20
+    },
+    moveSpeed: 40,
+    simpleResponseTimeRange: [0.2, 0.3],
+    choiceResponseTimeRange: [0.4, 0.6],
+    stopThinkingTime: 0,
+    stateAfterThinking: AI_STATES.PATROLING,
+    state: AI_STATES.PATROLING,
+    moveTowardsTarget: function (dt) {
+      // Get move direction as normalised vector values
+      const distanceToTarget = distance2d(this, this.target)
+      const directionX = (this.target.x - this.x) / distanceToTarget
+      const directionY = (this.target.y - this.y) / distanceToTarget
+
+      this.x = Math.max(5, Math.min(width - 5, this.x + (directionX * this.moveSpeed * dt)))
+      this.y = Math.max(5, Math.min(width - 5, this.y + (directionY * this.moveSpeed * dt)))
+    },
+    canSeePlayer: function () {
+      return distance2d(this, player) < 100
+      // return (this.player.x >= this.zone.min.x &&
+      //   this.player.y >= this.zone.min.y &&
+      //   this.player.x <= this.zone.max.x &&
+      //   this.player.y <= this.zone.max.y)
+    },
+    tick: function(time, dt) {
+      switch (this.state) {
+        case AI_STATES.PATROLING:
+          // Look for player
+          if (this.canSeePlayer()) {
+            // If player found set target to player, and go to
+            // hunting via thinking
+            this.target = player
+            this.stopThinkingTime = time + randomRange(this.choiceResponseTimeRange)
+            this.stateAfterThinking = AI_STATES.HUNTING
+            this.state = AI_STATES.THINKING
+            if (debug) {
+              console.log(`Thinking for ${this.stopThinkingTime - time}s`)
+            }
+          } else if (!this.target || distance2d(this, this.target) < 1) {
+            // If we don't have a current patrol destination,
+            // or we have reached our patrol destination, set
+            // our target to a random destination, then go to
+            // patroling via thinking
+            this.target = {
+              x: randomRange([this.zone.min.x, this.zone.max.x]),
+              y: randomRange([this.zone.min.y, this.zone.max.y])
+            }
+            this.stopThinkingTime = time + randomRange(this.choiceResponseTimeRange)
+            this.stateAfterThinking = AI_STATES.PATROLING
+            this.state = AI_STATES.THINKING
+            if (debug) {
+              console.log(`Thinking for ${this.stopThinkingTime - time}s`)
+            }
+          } else {
+            // Move towards our patrol destination
+            this.moveTowardsTarget(dt)
+          }
+          break
+        case AI_STATES.THINKING:
+          // If we've thought about it for long enough, go to
+          // our next state.
+          if (time > this.stopThinkingTime) {
+            this.state = this.stateAfterThinking
+            if (debug) {
+              console.log(this.state)
+            }
+          }
+          // Otherwise keep thinking
+          break
+        case AI_STATES.HUNTING:
+          // Check we can still see the player
+          if (this.canSeePlayer()) {
+            if (distance2d(this, player) < this.weapon.range) {
+              // If they are close enough to attack
+              // Go to Attacking via Thinking
+              this.stopThinkingTime = time + randomRange(this.simpleResponseTimeRange)
+              this.stateAfterThinking = AI_STATES.ATTACKING
+              this.state = AI_STATES.THINKING
+              if (debug) {
+                console.log(`Thinking for ${this.stopThinkingTime - time}s`)
+              }
+            } else {
+              this.moveTowardsTarget(dt)
+            }
+          } else {
+            // Go to patrolling (don't even think about it)
+            this.target = null
+            this.state = AI_STATES.PATROLING
+            if (debug) {
+              console.log(this.state)
+            }
+          }
+          break
+        case AI_STATES.ATTACKING:
+          if (distance2d(this, player) < this.weapon.range) {
+            // TODO: Attack player
+          } else if (this.canSeePlayer()){
+            // Think about going back to Hunting
+            this.stopThinkingTime = time + randomRange(this.simpleResponseTimeRange)
+            this.stateAfterThinking = AI_STATES.HUNTING
+            this.state = AI_STATES.THINKING
+            if (debug) {
+              console.log(`Thinking for ${this.stopThinkingTime - time}s`)
+            }
+          } else {
+            // Go to patrolling (and don't even think about it)
+            this.target = null
+            this.state = AI_STATES.PATROLING
+            if (debug) {
+              console.log(this.state)
+            }
+          }
+          break
+        default:
+          console.error(`AI in Invalid State: ${this.state}`)
+          break
+      }
+
+      // Draw AI
+      switch (this.state) {
+        case AI_STATES.PATROLING:
+          ctx.fillStyle = '#00cc00'
+          break
+        case AI_STATES.THINKING:
+          ctx.fillStyle = '#9400D3'
+          break
+        case AI_STATES.HUNTING:
+          ctx.fillStyle = '#ff4444'
+          break
+        case AI_STATES.ATTACKING:
+          ctx.fillStyle = '#ff0000'
+          break
+        default:
+          console.error(`AI in Invalid State: ${this.state}`)
+          break
+      }
+      ctx.fillRect(this.x - 5, this.y - 5, 10, 10)
+    }
+  }
+}
+
+for (var i = 0; i < 50; i ++) {
+  entities.push(
+    spawnAi(
+      randomRange([width/2 - 50, width/2 + 50]),
+      randomRange([height / 2 - 50, height / 2 + 50]),
+      zone
+    )
+  )
+}
+
+
+let lastFrameStartTime = performance.now() / 1000
+const gameLoop = () => {
+  const frameStartTime = performance.now() / 1000
+  const dt = Math.min(0.1, frameStartTime - lastFrameStartTime)
+  lastFrameStartTime = frameStartTime
+
+  ctx.fillStyle = '#333322'
+  ctx.fillRect(0, 0, width, height)
+
+  entities.forEach((entity) => {
+    entity.tick(frameStartTime, dt)
+  })
+
+  // Draw Zone
+  ctx.strokeStyle = '#ff0000'
+  ctx.strokeRect(zone.min.x, zone.min.y, zone.max.x - zone.min.x, zone.max.y - zone.min.y)
+
+  window.requestAnimationFrame(gameLoop)
+}
+
+window.requestAnimationFrame(gameLoop)
+
+  </script>
+</body>
+</html>
