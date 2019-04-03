@@ -296,6 +296,7 @@ html body {
           let key = keys[j];
           let isPressed = pressedKeys.indexOf(key) >= 0;
           if (isPressed) {
+            ctx.fillStyle = defStyle;
             ctx.fillRect(key.x, key.y, key.w, key.h);
             ctx.fillStyle = invStyle;
           } else {
