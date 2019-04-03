@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TouchInput</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+  <style type="text/css">
+html body {
+  margin: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+  </style>
+</head>
+<body>
+  <canvas></canvas>
+  <script type="text/javascript">
+    const canvas = document.getElementsByTagName("canvas")[0];
+    const ctx = canvas.getContext("2d", {alpha: false});
+
+    // const keyArrays = [
+    // "`,1,2,3,4,5,6,7,8,9,0,-,=,DEL".split(","),
+    // "TAB,q,w,e,r,t,y,u,i,o,p,[,],\\".split(","),
+    // "CAPS,a,s,d,f,g,h,j,k,l,;,',RETURN".split(","),
+    // "SHIFT`z`x`c`v`b`n`m`,`.`/`SHIFT`  ↑  ".split("`"),
+    // "CTRL,❄,ALT,[----],ALT,CTRL,<-,↓,->".split(",")
+    // ];
+    //
+    // const keyArrays = [
+    // "q,w,e,r,t,y,u,i,o,p,DEL".split(","),
+    // "a,s,d,f,g,h,j,k,l,SND".split(","),
+    // "z`x`c`v`b`n`m`,`.".split("`"),
+    // "SHIFT,[----],ALT,CTRL".split(",")
+    // ];
+    //
+    const portraitKeys = [
+    [{
+      text: "q",
+      shiftText: "Q",
+      cols: 1
+    },
+    {
+      text: "w",
+      shiftText: "W",
+      cols: 1
+    },
+    {
+      text: "e",
+      shiftText: "E",
+      cols: 1
+    },
+    {
+      text: "r",
+      shiftText: "R",
+      cols: 1
+    },
+    {
+      text: "t",
+      shiftText: "T",
+      cols: 1
+    },
+    {
+      text: "y",
+      shiftText: "Y",
+      cols: 1
+    },
+    {
+      text: "u",
+      shiftText: "U",
+      cols: 1
+    },
+    {
+      text: "i",
+      shiftText: "I",
+      cols: 1
+    },
+    {
+      text: "o",
+      shiftText: "O",
+      cols: 1
+    },
+    {
+      text: "p",
+      shiftText: "P",
+      cols: 1
+    }],
+    [{
+      text: "a",
+      shiftText: "A",
+      cols: 1
+    },
+    {
+      text: "s",
+      shiftText: "S",
+      cols: 1
+    },
+    {
+      text: "d",
+      shiftText: "D",
+      cols: 1
+    },
+    {
+      text: "f",
+      shiftText: "F",
+      cols: 1
+    },
+    {
+      text: "g",
+      shiftText: "G",
+      cols: 1
+    },
+    {
+      text: "h",
+      shiftText: "H",
+      cols: 1
+    },
+    {
+      text: "j",
+      shiftText: "J",
+      cols: 1
+    },
+    {
+      text: "k",
+      shiftText: "K",
+      cols: 1
+    },
+    {
+      text: "l",
+      shiftText: "L",
+      cols: 1
+    }],
+    [{
+      text: "SFT",
+      shiftText: "SFT",
+      cols: 1.5
+    },
+    {
+      text: "z",
+      shiftText: "Z",
+      cols: 1
+    },
+    {
+      text: "x",
+      shiftText: "X",
+      cols: 1
+    },
+    {
+      text: "c",
+      shiftText: "C",
+      cols: 1
+    },
+    {
+      text: "v",
+      shiftText: "V",
+      cols: 1
+    },
+    {
+      text: "b",
+      shiftText: "B",
+      cols: 1
+    },
+    {
+      text: "n",
+      shiftText: "N",
+      cols: 1
+    },
+    {
+      text: "m",
+      shiftText: "M",
+      cols: 1
+    },{
+      text: "DEL",
+      shiftText: "DEL",
+      cols: 1.5
+    }],
+    [{
+      text: "CTR",
+      shiftText: "CTR",
+      cols: 1.5
+    },{
+      text: "ALT",
+      shiftText: "ALT",
+      cols: 1.5
+    },{
+      text: "[  ]",
+      shiftText: "[  ]",
+      cols: 2
+    },
+    {
+      text: ",",
+      shiftText: ",",
+      cols: 1
+    },
+    {
+      text: ".",
+      shiftText: ".",
+      cols: 1
+    },{
+      text: "RET",
+      shiftText: "RET",
+      cols: 2
+    }]
+    ]
+
+    const landscapeKeys = portraitKeys
+
+    let w = canvas.width;
+    let h = canvas.height;
+    let portrait = false;
+    let keySize = w / 10;
+    let shiftKey = portraitKeys[2][0];
+    const keyHSpace = 0;
+    const keyVSpace = 0;
+    const initSize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      w = canvas.width;
+      h = canvas.height;
+      portrait = h > w;
+      keyRows = portrait ? portraitKeys : landscapeKeys;
+      keySize = Math.min(portrait ? w / 10 : w / 16, 64);
+
+      let startY = h - (keyRows.length * (keySize + keyHSpace));
+      for(let i = 0; i < keyRows.length; i++) {
+        let keys = keyRows[i];
+        let totalCols = 0;
+        for (let j = 0; j < keys.length; j++) {
+          totalCols += keys[j].cols;
+        }
+        let startX = w / 2 - ((totalCols * keySize) / 2);
+        for (let j = 0; j < keys.length; j++) {
+          let key = keys[j];
+
+          let keyLength = ctx.measureText(key.text).width;
+          let keyShiftLength = ctx.measureText(key.shiftText).width;
+          let kw = keySize * key.cols;
+
+          key.x = startX;
+          key.y = startY;
+          key.w = kw;
+          key.h = keySize;
+
+          startX += kw + keyHSpace;
+        }
+        startY += keySize + keyVSpace;
+      }
+    };
+    initSize();
+    window.addEventListener('resize', initSize);
+
+    const keyForPoint = (p, keys) => {
+      for (let i = 0; i < keys.length; i++) {
+        let row = keys[i]
+        for (let j = 0; j < row.length; j++) {
+          let key = row[j];
+          if (key.y + key.h < p.y) {
+            break;
+          }
+          if (key.x <= p.x && key.x + key.w >= p.x && key.y <= p.y && key.y + key.h >= p.y) {
+            return key;
+          }
+        }
+      }
+    }
+
+    const drawText = (x, y, text) => {
+      let vOffset = ctx.measureText("M").width;
+      ctx.fillText(text, x, y + vOffset);
+    };
+
+    const defStyle = "rgb(0,255,0)";
+    const invStyle = "rgb(0,0,0)";
+
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.strokeStyle = defStyle;
+      ctx.fillStyle = defStyle;
+      ctx.strokeRect(4, 4, w - 8, h - (4 * (keySize + keyVSpace)) - 8);
+
+      ctx.font = "16px 'Press Start 2P'";
+
+      let pressedKeys = [];
+      for (touchId in touches) {
+        let pressedKey = keyForPoint(touches[touchId], keyRows);
+        if (pressedKey) {
+          pressedKeys.push(pressedKey);
+        }
+      }
+
+      for (let i = 0; i < keyRows.length; i++) {
+        let keys = keyRows[i];
+        for (let j = 0; j < keys.length; j++) {
+          let key = keys[j];
+          let isPressed = pressedKeys.indexOf(key) >= 0;
+          if (isPressed) {
+            ctx.fillRect(key.x, key.y, key.w, key.h);
+            ctx.fillStyle = invStyle;
+          } else {
+            ctx.strokeRect(key.x, key.y, key.w, key.h);
+            ctx.fillStyle = defStyle;
+          }
+          let shiftIsPressed = pressedKeys.indexOf(shiftKey) >= 0;
+          let text = shiftIsPressed ? key.shiftText : key.text;
+          let keyLength = ctx.measureText(text).width;
+          drawText(key.x + (key.w/2 - keyLength/2), key.y + ((keySize / 2) - (ctx.measureText("M").width / 2)), text);
+        }
+      }
+      setTimeout(draw, 100);
+    };
+    window.requestAnimationFrame(draw);
+
+    const touches = {};
+    const touchStart = (evt) => {
+      evt.preventDefault();
+      for (let i = 0; i < evt.changedTouches.length; i++) {
+        let touch = evt.changedTouches[i];
+        touches[touch.identifier] = {x: touch.pageX, y: touch.pageY};
+      }
+    };
+    const touchMove = (evt) => {
+      evt.preventDefault();
+      for (let i = 0; i < evt.changedTouches.length; i++) {
+        let touch = evt.changedTouches[i];
+        touches[touch.identifier].x = touch.pageX;
+        touches[touch.identifier].y = touch.pageY;
+      }
+    };
+    const touchEnd = (evt) => {
+      evt.preventDefault();
+      for (let i = 0; i < evt.changedTouches.length; i++) {
+        let touch = evt.changedTouches[i];
+        delete touches[touch.identifier];
+      }
+    };
+    const touchCancel = touchEnd;
+
+    canvas.addEventListener("touchstart", touchStart, false);
+    canvas.addEventListener("touchend", touchEnd, false);
+    canvas.addEventListener("touchcancel", touchCancel, false);
+    canvas.addEventListener("touchmove", touchMove, false);
+
+  </script>
+</body>
+</html>
