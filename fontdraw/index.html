@@ -28,7 +28,7 @@
         initSize();
         window.addEventListener('resize', initSize);
 
-        fetch('/FONTDRAW.js', {cache: 'no-cache'}).then(response => {
+        fetch('./FONTDRAW.js', {cache: 'no-cache'}).then(response => {
             return response.text()
         }).then(contents => {
             contents = `(()=>{${contents}})();`
