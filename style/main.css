@@ -2,22 +2,28 @@ document, html, body {
   margin: 0;
   height: 100%;
   position: relative;
-  font-family: sans-serif;
+  font-family: monaco, Consolas, Lucida Console, monospace;
+  color: #f8f8f2;
+  background-color: #282a36;
+}
+
+::selection {
+  background: #44475a;
 }
 
 a {
   text-decoration: none;
   transition: all 0.2s ease;
+  color: #6272a4;
 }
 
 a:hover {
-  color: #bd2121;
+  color: #ff5555;
 }
 
 .fullwidth {
   width: 100%;
   padding: 20px;
-  margin-bottom: 20px;
   box-sizing: border-box;
 }
 
@@ -25,37 +31,46 @@ a:hover {
   width: 80%;
   margin-left: auto;
   margin-right: auto;
-  background-color: #ffffff;
-  border: 10px solid #000000;
+  border: 4px solid #f8f8f2;
   padding: 20px;
 }
 
 #header-home-button {
-  background-color: #ffffff;
-  transition: all 0.2s ease;
-}
-
-#header-home-button img:hover {
-  background-color: #bd2121;
   transition: all 0.2s ease;
 }
 
 #header-home-button a {
   display: block;
   text-decoration: none;
-  color: #000000;
+  color: #f8f8f2;
   transition: all 0.2s ease;
   font-size: 32px;
 }
 
 #header-home-button a:hover {
-  color: #bd2121;
+  color: #ff5555;
 }
 
 #content section {
-  border-bottom: 1px solid #000000;
+  border-bottom: 1px solid #f8f8f2;
 }
 
 #footer {
   text-align: right;
+}
+
+@keyframes blink {
+  from {
+    visibility: hidden;
+  }
+  to {
+    visibility: visibler;
+  }
+}
+
+.cursor {
+  animation-name: blink;
+  animation-duration: 1s;
+  animation-timing-function: steps(2, end);
+  animation-iteration-count: infinite;
 }
