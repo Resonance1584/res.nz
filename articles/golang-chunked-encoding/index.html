@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>golang Transfer-Encoding: chunked | res.nz</title>
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="stylesheet" href="/style/main.css">
+</head>
+<body>
+  <div id="header-wrapper" class="fullwidth">
+    <div id="header" class="fixedwidth">
+      <div id="header-home-button">
+        <a href="/">
+        res.nz
+        </a>
+      </div>
+    </div>
+  </div>
+  <div id="content-wrapper" class="fullwidth">
+    <div id="content" class="fixedwidth">
+      <h1>golang Transfer-Encoding: chunked</h1>
+      <ul>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding">MDN docs on the Transfer-Encoding header</a>
+        </li>
+        <li><a href="https://tools.ietf.org/html/rfc7230#section-4.1">Chunked Transfer Coding in RFC7230 (HTTP1/1)</a>
+        </li>
+        <li><a href="https://golang.org/pkg/net/http/#ResponseWriter">ResponseWriter.Write godoc</a>
+        </li>
+      </ul>
+      <section>
+        <p>I recently ran into a fun issue with a colleague where HTTP POSTs to
+          one of their golang services were being dropped and the response not
+          read by an akka-http client. It appeared to occur only on long
+          running requests so the initial search was for some kind of timeout
+          on the client or server.
+        </p>
+        <p>After adding a tonne more debug logs they found that akka-http was
+          dropping the request with:
+        </p>
+        <pre><code>Received illegal response: HTTP chunk size exceeds the configured limit of 1048576 bytes</code></pre>
+        <p>This seemed odd as curl and postman had no issue downloading the
+          response. Surely we coudn't be sending a chunk larger than a megabyte?
+          We fired up wireshark and inspected the TCP dump. The response from
+          the go server appeared reasonable:
+        </p>
+        <pre><code>Transfer-Encoding: chunked
+
+235230
+{... (data follows)</code></pre>
+        <p>The number <code>235230</code> is the count of bytes in the chunk.
+          But akka-http was closing the connection almost immediately after
+          receiving this count. It seemed to be within the configured limit.
+        </p>
+        <p>On closer inspection of the spec we realized that each chunk begins
+          with a <strong>hexadecimal</strong> count of bytes. According to the
+          RFC:
+        </p>
+        <pre><code>The chunk-size field is a string of hex digits indicating the size of
+the chunk-data in octets.</code></pre>
+        <p>I think that's the only time I've run into hexadecimal in any of the
+          HTTP spec. So as it turns out our golang server was indeed sending one
+          massive chunk of <code>2314800 bytes</code> (2.2m) in the response. Way
+          above the default akka limit.
+        </p>
+      </section>
+      <section>
+        <p>So why does golang send a massive chunk? If we look into the source we find the following:
+        </p>
+        <pre><code>// If the handler didn't declare a Content-Length up front, we either
+// go into chunking mode or, if the handler finishes running before
+// the chunking buffer size, we compute a Content-Length and send that
+// in the header instead.</code></pre>
+        <p>(<a href="https://golang.org/src/net/http/server.go#L1512">server.go#L1512</a> at time of writing)</p>
+        <p>Our takeaway from diving into the code is that if a handler makes a call
+          to <code>.Write(data)</code> in most cases this will create a chunk
+          with the same size as the data being written.
+        </p>
+        <p>It might seem odd for a server to send just one chunk, but really TCP
+          takes care of splitting up the large response anyway. So using chunked
+          transfer encoding allows the golang server to start writing immediately
+          without any knowledge of what other calls to Write might occur before
+          the request handler finishes.
+        </p>
+        <p>We could force smaller chunks by iterating over our data and
+          making multiple calls to <code>.Write</code>, but given that every
+          other HTTP client we've encountered has no issue with large chunks the
+          most pragmatic thing to do here is just change the weird akka default 
+          <code>akka.http.parsing.max-chunk-size</code> or one of it's variants.</p>
+        <p>And now our requests work again.</p>
+      </section>
+    </div>
+</div>
+<div id="footer-wrapper" class="fullwidth">
+  <div id="footer" class="fixedwidth">
+    Lewis Christie | <a href="https://github.com/Resonance1584">github</a> <span class="cursor">█</span>
+  </div>
+</div>
+</body>
+</html>

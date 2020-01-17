@@ -8,7 +8,8 @@ document, html, body {
 }
 
 ::selection {
-  background: #44475a;
+  background: #f8f8f2;
+  color: #282a36;
 }
 
 a {
@@ -73,4 +74,21 @@ a:hover {
   animation-duration: 1s;
   animation-timing-function: steps(2, end);
   animation-iteration-count: infinite;
+}
+
+pre {
+  margin: 2em 0;
+}
+
+pre code {
+  padding: 1em 1em;
+  font-size: 90%;
+  line-height: 1.2em;
+  display: block;
+}
+
+code {
+  font-family: monaco, Consolas, Lucida Console, monospace;
+  background: #44475a;
+  white-space: pre;
 }
